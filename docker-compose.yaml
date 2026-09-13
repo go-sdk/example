@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -U postgres -d app" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  app:
+    build: .
+    environment:
+      APP__SERVER__ADDRESS: ":8080"
+      APP__DATABASE__DSN: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/app?sslmode=disable"
+      APP__AUTH__JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      APP__BOOTSTRAP__PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?set BOOTSTRAP_ADMIN_PASSWORD in .env}
+      APP__STORAGE__ROOT: /app/data
+    ports:
+      - "8080:8080"
+    volumes:
+      - app-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  app-data:

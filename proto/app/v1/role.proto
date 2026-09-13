@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "options.proto";
+
+service RoleService {
+  rpc Create(CreateRoleReq) returns (Role) {
+    option (google.api.http) = {
+      post: "/api/v1/roles"
+      body: "*"
+    };
+    option (server.options.method).permissions = "roles.write";
+  }
+  rpc Get(GetRoleReq) returns (Role) {
+    option (google.api.http) = {get: "/api/v1/roles/{id}"};
+    option (server.options.method).permissions = "roles.read";
+  }
+  rpc List(ListRoleReq) returns (ListRoleResp) {
+    option (google.api.http) = {get: "/api/v1/roles"};
+    option (server.options.method).permissions = "roles.read";
+  }
+  rpc Update(UpdateRoleReq) returns (Role) {
+    option (google.api.http) = {
+      put: "/api/v1/roles/{id}"
+      body: "*"
+    };
+    option (server.options.method).permissions = "roles.write";
+  }
+  rpc Delete(DeleteRoleReq) returns (common.v1.Empty) {
+    option (google.api.http) = {delete: "/api/v1/roles/{id}"};
+    option (server.options.method).permissions = "roles.write";
+  }
+  rpc SetPermissions(SetRolePermissionsReq) returns (common.v1.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/roles/{id}/permissions"
+      body: "*"
+    };
+    option (server.options.method).permissions = "roles.write";
+  }
+}
+
+message Role {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  repeated string permission_ids = 4;
+  common.v1.Metadata metadata = 15;
+}
+
+message CreateRoleReq {
+  string code = 1 [(buf.validate.field).string = {pattern: "^[a-z][a-z0-9_]{1,63}$"}];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+message GetRoleReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+message ListRoleReq {
+  common.v1.PagingReq paging = 1;
+}
+message ListRoleResp {
+  repeated Role records = 1;
+  common.v1.Paging paging = 2;
+}
+message UpdateRoleReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+message DeleteRoleReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+message SetRolePermissionsReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  repeated string permission_ids = 2 [(buf.validate.field).repeated.items.string.min_len = 1];
+}

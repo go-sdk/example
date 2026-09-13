@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "options.proto";
+
+service PermissionService {
+  rpc Create(CreatePermissionReq) returns (Permission) {
+    option (google.api.http) = {
+      post: "/api/v1/permissions"
+      body: "*"
+    };
+    option (server.options.method).permissions = "permissions.write";
+  }
+  rpc Get(GetPermissionReq) returns (Permission) {
+    option (google.api.http) = {get: "/api/v1/permissions/{id}"};
+    option (server.options.method).permissions = "permissions.read";
+  }
+  rpc List(ListPermissionReq) returns (ListPermissionResp) {
+    option (google.api.http) = {get: "/api/v1/permissions"};
+    option (server.options.method).permissions = "permissions.read";
+  }
+  rpc Update(UpdatePermissionReq) returns (Permission) {
+    option (google.api.http) = {
+      put: "/api/v1/permissions/{id}"
+      body: "*"
+    };
+    option (server.options.method).permissions = "permissions.write";
+  }
+  rpc Delete(DeletePermissionReq) returns (common.v1.Empty) {
+    option (google.api.http) = {delete: "/api/v1/permissions/{id}"};
+    option (server.options.method).permissions = "permissions.write";
+  }
+}
+
+message Permission {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  common.v1.Metadata metadata = 15;
+}
+message CreatePermissionReq {
+  string code = 1 [(buf.validate.field).string = {pattern: "^[a-z][a-z0-9_.]{1,127}$"}];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+message GetPermissionReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+message ListPermissionReq {
+  common.v1.PagingReq paging = 1;
+}
+message ListPermissionResp {
+  repeated Permission records = 1;
+  common.v1.Paging paging = 2;
+}
+message UpdatePermissionReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+message DeletePermissionReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}

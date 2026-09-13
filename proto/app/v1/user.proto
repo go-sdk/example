@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "options.proto";
+
+service UserService {
+  rpc Create(CreateUserReq) returns (User) {
+    option (google.api.http) = {
+      post: "/api/v1/users"
+      body: "*"
+    };
+    option (server.options.method).permissions = "users.write";
+  }
+  rpc Get(GetUserReq) returns (User) {
+    option (google.api.http) = {get: "/api/v1/users/{id}"};
+    option (server.options.method).permissions = "users.read";
+  }
+  rpc List(ListUserReq) returns (ListUserResp) {
+    option (google.api.http) = {get: "/api/v1/users"};
+    option (server.options.method).permissions = "users.read";
+  }
+  rpc Update(UpdateUserReq) returns (User) {
+    option (google.api.http) = {
+      put: "/api/v1/users/{id}"
+      body: "*"
+    };
+    option (server.options.method).permissions = "users.write";
+  }
+  rpc Delete(DeleteUserReq) returns (common.v1.Empty) {
+    option (google.api.http) = {delete: "/api/v1/users/{id}"};
+    option (server.options.method).permissions = "users.write";
+  }
+  rpc SetRoles(SetUserRolesReq) returns (common.v1.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/users/{id}/roles"
+      body: "*"
+    };
+    option (server.options.method).permissions = "users.write";
+  }
+}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  bool enabled = 4;
+  string avatar_file_id = 5;
+  repeated string role_ids = 6;
+  common.v1.Metadata metadata = 15;
+}
+
+message CreateUserReq {
+  string username = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  string email = 2 [(buf.validate.field).string = {
+    email: true
+    max_len: 255
+  }];
+  string password = 3 [
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 128
+    },
+    (server.options.field).sensitive = true
+  ];
+  bool enabled = 4;
+}
+
+message GetUserReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message ListUserReq {
+  common.v1.PagingReq paging = 1;
+}
+
+message ListUserResp {
+  repeated User records = 1;
+  common.v1.Paging paging = 2;
+}
+
+message UpdateUserReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  string email = 2 [(buf.validate.field).string = {
+    email: true
+    max_len: 255
+  }];
+  bool enabled = 3;
+}
+
+message DeleteUserReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message SetUserRolesReq {
+  string id = 1 [(buf.validate.field).string.min_len = 1];
+  repeated string role_ids = 2 [(buf.validate.field).repeated.items.string.min_len = 1];
+}

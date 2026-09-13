@@ -1,0 +1,14 @@
+server:
+  address: ":8080"
+database:
+  dsn: ""
+auth:
+  jwt_secret: ""
+  expires_in: 24h
+storage:
+  root: ./data
+  max_upload_bytes: 10485760
+bootstrap:
+  username: admin
+  password: ""
+  email: admin@example.invalid

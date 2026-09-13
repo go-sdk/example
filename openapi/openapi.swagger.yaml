@@ -1,0 +1,516 @@
+swagger: "2.0"
+info:
+  title: Go SDK Example API
+  description: 基于 go-sdk/core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。
+  version: 1.0.0
+tags:
+  - name: app.v1.AuthService
+  - name: app.v1.PermissionService
+  - name: app.v1.RoleService
+  - name: app.v1.UserService
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/v1/auth/login:
+    post:
+      operationId: AuthService_Login
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.LoginResp'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.LoginReq'
+      tags:
+        - app.v1.AuthService
+      security: []
+  /api/v1/permissions:
+    get:
+      operationId: PermissionService_List
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.ListPermissionResp'
+      parameters:
+        - name: paging.page
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: paging.pageSize
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - app.v1.PermissionService
+    post:
+      operationId: PermissionService_Create
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Permission'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.CreatePermissionReq'
+      tags:
+        - app.v1.PermissionService
+  /api/v1/permissions/{id}:
+    get:
+      operationId: PermissionService_Get
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Permission'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.PermissionService
+    delete:
+      operationId: PermissionService_Delete
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/common.v1.Empty'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.PermissionService
+    put:
+      operationId: PermissionService_Update
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Permission'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.PermissionService.UpdateBody'
+      tags:
+        - app.v1.PermissionService
+  /api/v1/roles:
+    get:
+      operationId: RoleService_List
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.ListRoleResp'
+      parameters:
+        - name: paging.page
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: paging.pageSize
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - app.v1.RoleService
+    post:
+      operationId: RoleService_Create
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Role'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.CreateRoleReq'
+      tags:
+        - app.v1.RoleService
+  /api/v1/roles/{id}:
+    get:
+      operationId: RoleService_Get
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Role'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.RoleService
+    delete:
+      operationId: RoleService_Delete
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/common.v1.Empty'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.RoleService
+    put:
+      operationId: RoleService_Update
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.Role'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.RoleService.UpdateBody'
+      tags:
+        - app.v1.RoleService
+  /api/v1/roles/{id}/permissions:
+    put:
+      operationId: RoleService_SetPermissions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/common.v1.Empty'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.RoleService.SetPermissionsBody'
+      tags:
+        - app.v1.RoleService
+  /api/v1/users:
+    get:
+      operationId: UserService_List
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.ListUserResp'
+      parameters:
+        - name: paging.page
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: paging.pageSize
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - app.v1.UserService
+    post:
+      operationId: UserService_Create
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.User'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.CreateUserReq'
+      tags:
+        - app.v1.UserService
+  /api/v1/users/{id}:
+    get:
+      operationId: UserService_Get
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.User'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.UserService
+    delete:
+      operationId: UserService_Delete
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/common.v1.Empty'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - app.v1.UserService
+    put:
+      operationId: UserService_Update
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/app.v1.User'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.UserService.UpdateBody'
+      tags:
+        - app.v1.UserService
+  /api/v1/users/{id}/roles:
+    put:
+      operationId: UserService_SetRoles
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/common.v1.Empty'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/app.v1.UserService.SetRolesBody'
+      tags:
+        - app.v1.UserService
+definitions:
+  app.v1.CreatePermissionReq:
+    type: object
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+  app.v1.CreateRoleReq:
+    type: object
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+  app.v1.CreateUserReq:
+    type: object
+    properties:
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      enabled:
+        type: boolean
+  app.v1.ListPermissionResp:
+    type: object
+    properties:
+      records:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/app.v1.Permission'
+      paging:
+        $ref: '#/definitions/common.v1.Paging'
+  app.v1.ListRoleResp:
+    type: object
+    properties:
+      records:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/app.v1.Role'
+      paging:
+        $ref: '#/definitions/common.v1.Paging'
+  app.v1.ListUserResp:
+    type: object
+    properties:
+      records:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/app.v1.User'
+      paging:
+        $ref: '#/definitions/common.v1.Paging'
+  app.v1.LoginReq:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  app.v1.LoginResp:
+    type: object
+    properties:
+      accessToken:
+        type: string
+      expiresAt:
+        type: string
+        format: int64
+  app.v1.Permission:
+    type: object
+    properties:
+      id:
+        type: string
+      code:
+        type: string
+      name:
+        type: string
+      metadata:
+        $ref: '#/definitions/common.v1.Metadata'
+  app.v1.PermissionService.UpdateBody:
+    type: object
+    properties:
+      name:
+        type: string
+  app.v1.Role:
+    type: object
+    properties:
+      id:
+        type: string
+      code:
+        type: string
+      name:
+        type: string
+      permissionIds:
+        type: array
+        items:
+          type: string
+      metadata:
+        $ref: '#/definitions/common.v1.Metadata'
+  app.v1.RoleService.SetPermissionsBody:
+    type: object
+    properties:
+      permissionIds:
+        type: array
+        items:
+          type: string
+  app.v1.RoleService.UpdateBody:
+    type: object
+    properties:
+      name:
+        type: string
+  app.v1.User:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+      enabled:
+        type: boolean
+      avatarFileId:
+        type: string
+      roleIds:
+        type: array
+        items:
+          type: string
+      metadata:
+        $ref: '#/definitions/common.v1.Metadata'
+  app.v1.UserService.SetRolesBody:
+    type: object
+    properties:
+      roleIds:
+        type: array
+        items:
+          type: string
+  app.v1.UserService.UpdateBody:
+    type: object
+    properties:
+      email:
+        type: string
+      enabled:
+        type: boolean
+  common.v1.Empty:
+    type: object
+  common.v1.Metadata:
+    type: object
+    properties:
+      createdBy:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedBy:
+        type: string
+      updatedAt:
+        type: string
+        format: date-time
+  common.v1.Paging:
+    type: object
+    properties:
+      page:
+        type: integer
+        format: int32
+      pageSize:
+        type: integer
+        format: int32
+      total:
+        type: string
+        format: int64
+        readOnly: true
+  common.v1.PagingReq:
+    type: object
+    properties:
+      page:
+        type: integer
+        format: int32
+      pageSize:
+        type: integer
+        format: int32
+securityDefinitions:
+  BearerJWT:
+    type: apiKey
+    description: 全局 JWT 鉴权；标注 skip_auth 的接口（如登录）无需携带。
+    name: Authorization
+    in: header
+security:
+  - BearerJWT: []

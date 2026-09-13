@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Go SDK Example API"
+    version: "1.0.0"
+    description: "基于 go-sdk/core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。"
+  }
+  consumes: "application/json"
+  produces: "application/json"
+  security_definitions: {
+    security: {
+      key: "BearerJWT"
+      value: {
+        type: TYPE_API_KEY
+        description: "全局 JWT 鉴权；标注 skip_auth 的接口（如登录）无需携带。"
+        name: "Authorization"
+        in: IN_HEADER
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "BearerJWT"
+      value: {}
+    }
+  }
+};
