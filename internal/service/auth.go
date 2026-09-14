@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-sdk/server/standard"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
+	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	appauth "github.com/go-sdk/example/internal/auth"
 	"github.com/go-sdk/example/internal/model"
 )
@@ -45,6 +45,6 @@ func (s *Auth) Login(ctx context.Context, req *appv1.LoginReq) (*appv1.LoginResp
 }
 
 func invalidCredentials() error {
-	return standard.NewError(codes.Unauthenticated, "invalid username or password").
-		WithDomainReason("INVALID_CREDENTIALS", "auth.invalid_credentials")
+	return standard.ErrUnauthenticated.
+		WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_CREDENTIALS)
 }

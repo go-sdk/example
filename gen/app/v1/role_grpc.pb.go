@@ -8,7 +8,7 @@ package appv1
 
 import (
 	context "context"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -36,8 +36,8 @@ type RoleServiceClient interface {
 	Get(ctx context.Context, in *GetRoleReq, opts ...grpc.CallOption) (*Role, error)
 	List(ctx context.Context, in *ListRoleReq, opts ...grpc.CallOption) (*ListRoleResp, error)
 	Update(ctx context.Context, in *UpdateRoleReq, opts ...grpc.CallOption) (*Role, error)
-	Delete(ctx context.Context, in *DeleteRoleReq, opts ...grpc.CallOption) (*v1.Empty, error)
-	SetPermissions(ctx context.Context, in *SetRolePermissionsReq, opts ...grpc.CallOption) (*v1.Empty, error)
+	Delete(ctx context.Context, in *DeleteRoleReq, opts ...grpc.CallOption) (*common.Empty, error)
+	SetPermissions(ctx context.Context, in *SetRolePermissionsReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type roleServiceClient struct {
@@ -88,9 +88,9 @@ func (c *roleServiceClient) Update(ctx context.Context, in *UpdateRoleReq, opts 
 	return out, nil
 }
 
-func (c *roleServiceClient) Delete(ctx context.Context, in *DeleteRoleReq, opts ...grpc.CallOption) (*v1.Empty, error) {
+func (c *roleServiceClient) Delete(ctx context.Context, in *DeleteRoleReq, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.Empty)
+	out := new(common.Empty)
 	err := c.cc.Invoke(ctx, RoleService_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -98,9 +98,9 @@ func (c *roleServiceClient) Delete(ctx context.Context, in *DeleteRoleReq, opts 
 	return out, nil
 }
 
-func (c *roleServiceClient) SetPermissions(ctx context.Context, in *SetRolePermissionsReq, opts ...grpc.CallOption) (*v1.Empty, error) {
+func (c *roleServiceClient) SetPermissions(ctx context.Context, in *SetRolePermissionsReq, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.Empty)
+	out := new(common.Empty)
 	err := c.cc.Invoke(ctx, RoleService_SetPermissions_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -116,8 +116,8 @@ type RoleServiceServer interface {
 	Get(context.Context, *GetRoleReq) (*Role, error)
 	List(context.Context, *ListRoleReq) (*ListRoleResp, error)
 	Update(context.Context, *UpdateRoleReq) (*Role, error)
-	Delete(context.Context, *DeleteRoleReq) (*v1.Empty, error)
-	SetPermissions(context.Context, *SetRolePermissionsReq) (*v1.Empty, error)
+	Delete(context.Context, *DeleteRoleReq) (*common.Empty, error)
+	SetPermissions(context.Context, *SetRolePermissionsReq) (*common.Empty, error)
 	mustEmbedUnimplementedRoleServiceServer()
 }
 
@@ -140,10 +140,10 @@ func (UnimplementedRoleServiceServer) List(context.Context, *ListRoleReq) (*List
 func (UnimplementedRoleServiceServer) Update(context.Context, *UpdateRoleReq) (*Role, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedRoleServiceServer) Delete(context.Context, *DeleteRoleReq) (*v1.Empty, error) {
+func (UnimplementedRoleServiceServer) Delete(context.Context, *DeleteRoleReq) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedRoleServiceServer) SetPermissions(context.Context, *SetRolePermissionsReq) (*v1.Empty, error) {
+func (UnimplementedRoleServiceServer) SetPermissions(context.Context, *SetRolePermissionsReq) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetPermissions not implemented")
 }
 func (UnimplementedRoleServiceServer) mustEmbedUnimplementedRoleServiceServer() {}

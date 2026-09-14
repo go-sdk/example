@@ -8,7 +8,7 @@ package appv1
 
 import (
 	context "context"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -36,8 +36,8 @@ type UserServiceClient interface {
 	Get(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*User, error)
 	List(ctx context.Context, in *ListUserReq, opts ...grpc.CallOption) (*ListUserResp, error)
 	Update(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*User, error)
-	Delete(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*v1.Empty, error)
-	SetRoles(ctx context.Context, in *SetUserRolesReq, opts ...grpc.CallOption) (*v1.Empty, error)
+	Delete(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*common.Empty, error)
+	SetRoles(ctx context.Context, in *SetUserRolesReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type userServiceClient struct {
@@ -88,9 +88,9 @@ func (c *userServiceClient) Update(ctx context.Context, in *UpdateUserReq, opts 
 	return out, nil
 }
 
-func (c *userServiceClient) Delete(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*v1.Empty, error) {
+func (c *userServiceClient) Delete(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.Empty)
+	out := new(common.Empty)
 	err := c.cc.Invoke(ctx, UserService_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -98,9 +98,9 @@ func (c *userServiceClient) Delete(ctx context.Context, in *DeleteUserReq, opts 
 	return out, nil
 }
 
-func (c *userServiceClient) SetRoles(ctx context.Context, in *SetUserRolesReq, opts ...grpc.CallOption) (*v1.Empty, error) {
+func (c *userServiceClient) SetRoles(ctx context.Context, in *SetUserRolesReq, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.Empty)
+	out := new(common.Empty)
 	err := c.cc.Invoke(ctx, UserService_SetRoles_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -116,8 +116,8 @@ type UserServiceServer interface {
 	Get(context.Context, *GetUserReq) (*User, error)
 	List(context.Context, *ListUserReq) (*ListUserResp, error)
 	Update(context.Context, *UpdateUserReq) (*User, error)
-	Delete(context.Context, *DeleteUserReq) (*v1.Empty, error)
-	SetRoles(context.Context, *SetUserRolesReq) (*v1.Empty, error)
+	Delete(context.Context, *DeleteUserReq) (*common.Empty, error)
+	SetRoles(context.Context, *SetUserRolesReq) (*common.Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -140,10 +140,10 @@ func (UnimplementedUserServiceServer) List(context.Context, *ListUserReq) (*List
 func (UnimplementedUserServiceServer) Update(context.Context, *UpdateUserReq) (*User, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedUserServiceServer) Delete(context.Context, *DeleteUserReq) (*v1.Empty, error) {
+func (UnimplementedUserServiceServer) Delete(context.Context, *DeleteUserReq) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedUserServiceServer) SetRoles(context.Context, *SetUserRolesReq) (*v1.Empty, error) {
+func (UnimplementedUserServiceServer) SetRoles(context.Context, *SetUserRolesReq) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetRoles not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}

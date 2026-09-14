@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "options/options.proto";
+
+// ErrorCode 定义应用稳定的业务错误码，数字值写入响应 domain。
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+
+  ERROR_CODE_INVALID_CREDENTIALS = 1000001 [(server.options.enum_value).message = "invalid username or password"];
+  ERROR_CODE_PERMISSION_DENIED = 1000002 [(server.options.enum_value).message = "permission denied"];
+  ERROR_CODE_CURRENT_USER_CANNOT_BE_DELETED = 1000003 [(server.options.enum_value).message = "current user cannot be deleted"];
+  ERROR_CODE_ADMIN_ROLE_CANNOT_BE_DELETED = 1000004 [(server.options.enum_value).message = "administrator role cannot be deleted"];
+  ERROR_CODE_BUILTIN_PERMISSION_CANNOT_BE_DELETED = 1000005 [(server.options.enum_value).message = "built-in permission cannot be deleted"];
+  ERROR_CODE_INVALID_ROLE_IDS = 1000006 [(server.options.enum_value).message = "one or more roles do not exist"];
+  ERROR_CODE_INVALID_PERMISSION_IDS = 1000007 [(server.options.enum_value).message = "one or more permissions do not exist"];
+  ERROR_CODE_FILE_NOT_FOUND = 1000008 [(server.options.enum_value).message = "file {{.Name}} not found"];
+  ERROR_CODE_RECORD_NOT_FOUND = 1000009 [(server.options.enum_value).message = "record not found"];
+  ERROR_CODE_RECORD_ALREADY_EXISTS = 1000010 [(server.options.enum_value).message = "record already exists"];
+  ERROR_CODE_RECORD_IN_USE = 1000011 [(server.options.enum_value).message = "record is in use"];
+  ERROR_CODE_INVALID_FILE_NAME = 1000012 [(server.options.enum_value).message = "invalid file name"];
+}

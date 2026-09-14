@@ -8,7 +8,7 @@ package appv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	_ "github.com/go-sdk/server/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -33,7 +33,7 @@ type User struct {
 	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	AvatarFileId  string                 `protobuf:"bytes,5,opt,name=avatar_file_id,json=avatarFileId,proto3" json:"avatar_file_id,omitempty"`
 	RoleIds       []string               `protobuf:"bytes,6,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,7 +110,7 @@ func (x *User) GetRoleIds() []string {
 	return nil
 }
 
-func (x *User) GetMetadata() *v1.Metadata {
+func (x *User) GetMetadata() *common.Metadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -231,7 +231,7 @@ func (x *GetUserReq) GetId() string {
 
 type ListUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *v1.PagingReq          `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -266,7 +266,7 @@ func (*ListUserReq) Descriptor() ([]byte, []int) {
 	return file_app_v1_user_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListUserReq) GetPaging() *v1.PagingReq {
+func (x *ListUserReq) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -276,7 +276,7 @@ func (x *ListUserReq) GetPaging() *v1.PagingReq {
 type ListUserResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Records       []*User                `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *v1.Paging             `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -318,7 +318,7 @@ func (x *ListUserResp) GetRecords() []*User {
 	return nil
 }
 
-func (x *ListUserResp) GetPaging() *v1.Paging {
+func (x *ListUserResp) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -485,15 +485,15 @@ var File_app_v1_user_proto protoreflect.FileDescriptor
 
 const file_app_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11app/v1/user.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\roptions.proto\"\xd4\x01\n" +
+	"\x11app/v1/user.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x15options/options.proto\"\xd8\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x18\n" +
 	"\aenabled\x18\x04 \x01(\bR\aenabled\x12$\n" +
 	"\x0eavatar_file_id\x18\x05 \x01(\tR\favatarFileId\x12\x19\n" +
-	"\brole_ids\x18\x06 \x03(\tR\aroleIds\x12/\n" +
-	"\bmetadata\x18\x0f \x01(\v2\x13.common.v1.MetadataR\bmetadata\"\xa2\x01\n" +
+	"\brole_ids\x18\x06 \x03(\tR\aroleIds\x123\n" +
+	"\bmetadata\x18\x0f \x01(\v2\x17.server.common.MetadataR\bmetadata\"\xa2\x01\n" +
 	"\rCreateUserReq\x12%\n" +
 	"\busername\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\busername\x12 \n" +
 	"\x05email\x18\x02 \x01(\tB\n" +
@@ -502,12 +502,13 @@ const file_app_v1_user_proto_rawDesc = "" +
 	"\aenabled\x18\x04 \x01(\bR\aenabled\"%\n" +
 	"\n" +
 	"GetUserReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\";\n" +
-	"\vListUserReq\x12,\n" +
-	"\x06paging\x18\x01 \x01(\v2\x14.common.v1.PagingReqR\x06paging\"a\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xa5\x01\n" +
+	"\vListUserReq\x12\x95\x01\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBf\xbaHc\xba\x01`\n" +
+	"\vuser.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"e\n" +
 	"\fListUserResp\x12&\n" +
-	"\arecords\x18\x01 \x03(\v2\f.app.v1.UserR\arecords\x12)\n" +
-	"\x06paging\x18\x02 \x01(\v2\x11.common.v1.PagingR\x06paging\"d\n" +
+	"\arecords\x18\x01 \x03(\v2\f.app.v1.UserR\arecords\x12-\n" +
+	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"d\n" +
 	"\rUpdateUserReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12 \n" +
 	"\x05email\x18\x02 \x01(\tB\n" +
@@ -517,16 +518,16 @@ const file_app_v1_user_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"S\n" +
 	"\x0fSetUserRolesReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12'\n" +
-	"\brole_ids\x18\x02 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\aroleIds2\xce\x04\n" +
+	"\brole_ids\x18\x02 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\aroleIds2\xd6\x04\n" +
 	"\vUserService\x12Z\n" +
 	"\x06Create\x12\x15.app.v1.CreateUserReq\x1a\f.app.v1.User\"+\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/usersʞ\xf2\x84\x06\r\x12\vusers.write\x12U\n" +
 	"\x03Get\x12\x12.app.v1.GetUserReq\x1a\f.app.v1.User\",\x82\xd3\xe4\x93\x02\x14\x12\x12/api/v1/users/{id}ʞ\xf2\x84\x06\f\x12\n" +
 	"users.read\x12Z\n" +
 	"\x04List\x12\x13.app.v1.ListUserReq\x1a\x14.app.v1.ListUserResp\"'\x82\xd3\xe4\x93\x02\x0f\x12\r/api/v1/usersʞ\xf2\x84\x06\f\x12\n" +
 	"users.read\x12_\n" +
-	"\x06Update\x12\x15.app.v1.UpdateUserReq\x1a\f.app.v1.User\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12`\n" +
-	"\x06Delete\x12\x15.app.v1.DeleteUserReq\x1a\x10.common.v1.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12m\n" +
-	"\bSetRoles\x12\x17.app.v1.SetUserRolesReq\x1a\x10.common.v1.Empty\"6\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/users/{id}/rolesʞ\xf2\x84\x06\r\x12\vusers.writeB|\n" +
+	"\x06Update\x12\x15.app.v1.UpdateUserReq\x1a\f.app.v1.User\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12d\n" +
+	"\x06Delete\x12\x15.app.v1.DeleteUserReq\x1a\x14.server.common.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12q\n" +
+	"\bSetRoles\x12\x17.app.v1.SetUserRolesReq\x1a\x14.server.common.Empty\"6\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/users/{id}/rolesʞ\xf2\x84\x06\r\x12\vusers.writeB|\n" +
 	"\n" +
 	"com.app.v1B\tUserProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -552,16 +553,15 @@ var file_app_v1_user_proto_goTypes = []any{
 	(*UpdateUserReq)(nil),   // 5: app.v1.UpdateUserReq
 	(*DeleteUserReq)(nil),   // 6: app.v1.DeleteUserReq
 	(*SetUserRolesReq)(nil), // 7: app.v1.SetUserRolesReq
-	(*v1.Metadata)(nil),     // 8: common.v1.Metadata
-	(*v1.PagingReq)(nil),    // 9: common.v1.PagingReq
-	(*v1.Paging)(nil),       // 10: common.v1.Paging
-	(*v1.Empty)(nil),        // 11: common.v1.Empty
+	(*common.Metadata)(nil), // 8: server.common.Metadata
+	(*common.Paging)(nil),   // 9: server.common.Paging
+	(*common.Empty)(nil),    // 10: server.common.Empty
 }
 var file_app_v1_user_proto_depIdxs = []int32{
-	8,  // 0: app.v1.User.metadata:type_name -> common.v1.Metadata
-	9,  // 1: app.v1.ListUserReq.paging:type_name -> common.v1.PagingReq
+	8,  // 0: app.v1.User.metadata:type_name -> server.common.Metadata
+	9,  // 1: app.v1.ListUserReq.paging:type_name -> server.common.Paging
 	0,  // 2: app.v1.ListUserResp.records:type_name -> app.v1.User
-	10, // 3: app.v1.ListUserResp.paging:type_name -> common.v1.Paging
+	9,  // 3: app.v1.ListUserResp.paging:type_name -> server.common.Paging
 	1,  // 4: app.v1.UserService.Create:input_type -> app.v1.CreateUserReq
 	2,  // 5: app.v1.UserService.Get:input_type -> app.v1.GetUserReq
 	3,  // 6: app.v1.UserService.List:input_type -> app.v1.ListUserReq
@@ -572,8 +572,8 @@ var file_app_v1_user_proto_depIdxs = []int32{
 	0,  // 11: app.v1.UserService.Get:output_type -> app.v1.User
 	4,  // 12: app.v1.UserService.List:output_type -> app.v1.ListUserResp
 	0,  // 13: app.v1.UserService.Update:output_type -> app.v1.User
-	11, // 14: app.v1.UserService.Delete:output_type -> common.v1.Empty
-	11, // 15: app.v1.UserService.SetRoles:output_type -> common.v1.Empty
+	10, // 14: app.v1.UserService.Delete:output_type -> server.common.Empty
+	10, // 15: app.v1.UserService.SetRoles:output_type -> server.common.Empty
 	10, // [10:16] is the sub-list for method output_type
 	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name

@@ -18,6 +18,7 @@ Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头�
 ## 设计约束
 
 - 普通业务接口以 `proto/` 为唯一协议来源，通过 gRPC Gateway 暴露 HTTP API。
+- 标识、元数据和分页统一复用 `server.common`，应用只维护自身的业务消息和错误码。
 - 只有 multipart 上传、文件下载等不适合 Proto JSON 映射的接口使用
   `standard.Server.HandlePath`。
 - 新增受保护的 RPC 必须声明 `(server.options.method).permissions`；匿名 RPC 必须显式声明
@@ -26,8 +27,10 @@ Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头�
   `skip_log`，不得写入日志。
 - `dbx.Open` 不隐式迁移；迁移统一放在 `internal/migration`，ID 遵循
   `YYYYMMDD_HHMMSS_NN_description`。
+- 每个迁移文件直接调用一次 `Migrations.Add`，已发布迁移文件不得重命名。
 - 模型主键使用 `core/seq` 生成，并复用 `dbx.Metadata` 的审计字段和软删除行为。
 - 文件只在配置的存储根目录内按随机名称保存，数据库不保存文件内容或绝对路径。
+- 业务错误使用 Proto 枚举定义稳定错误码，并通过 `standard.Err*` 和嵌入式 TOML 文案返回。
 - 不提交 `.env`、真实 DSN、JWT 密钥、管理员密码或其他秘密。
 
 ## 代码规范

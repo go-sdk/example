@@ -3,9 +3,9 @@ syntax = "proto3";
 package app.v1;
 
 import "buf/validate/validate.proto";
-import "common/v1/common.proto";
+import "common/common.proto";
 import "google/api/annotations.proto";
-import "options.proto";
+import "options/options.proto";
 
 service UserService {
   rpc Create(CreateUserReq) returns (User) {
@@ -30,11 +30,11 @@ service UserService {
     };
     option (server.options.method).permissions = "users.write";
   }
-  rpc Delete(DeleteUserReq) returns (common.v1.Empty) {
+  rpc Delete(DeleteUserReq) returns (server.common.Empty) {
     option (google.api.http) = {delete: "/api/v1/users/{id}"};
     option (server.options.method).permissions = "users.write";
   }
-  rpc SetRoles(SetUserRolesReq) returns (common.v1.Empty) {
+  rpc SetRoles(SetUserRolesReq) returns (server.common.Empty) {
     option (google.api.http) = {
       put: "/api/v1/users/{id}/roles"
       body: "*"
@@ -50,7 +50,7 @@ message User {
   bool enabled = 4;
   string avatar_file_id = 5;
   repeated string role_ids = 6;
-  common.v1.Metadata metadata = 15;
+  server.common.Metadata metadata = 15;
 }
 
 message CreateUserReq {
@@ -77,12 +77,16 @@ message GetUserReq {
 }
 
 message ListUserReq {
-  common.v1.PagingReq paging = 1;
+  server.common.Paging paging = 1 [(buf.validate.field).cel = {
+    id: "user.paging"
+    message: "paging is invalid"
+    expression: "this.page >= 0 && this.page_size >= 0 && this.page_size <= 100"
+  }];
 }
 
 message ListUserResp {
   repeated User records = 1;
-  common.v1.Paging paging = 2;
+  server.common.Paging paging = 2;
 }
 
 message UpdateUserReq {

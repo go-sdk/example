@@ -11,13 +11,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/cast"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"gorm.io/gorm"
 
+	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	"github.com/go-sdk/example/internal/model"
 )
 
@@ -65,10 +65,10 @@ func (a *Authorizer) UnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		methodOption, err := resolveMethodOption(info.FullMethod)
 		if err != nil {
-			return nil, standard.NewError(codes.Internal, "resolve method permissions")
+			return nil, standard.ErrInternal.WithMessage("resolve method permissions")
 		}
 		if strings.HasPrefix(info.FullMethod, "/app.v1.") && methodOption == nil {
-			return nil, standard.NewError(codes.Internal, "method permission policy is required")
+			return nil, standard.ErrInternal.WithMessage("method permission policy is required")
 		}
 		for _, permission := range methodOption.GetPermissions() {
 			if err := a.Require(ctx, permission); err != nil {
@@ -82,7 +82,7 @@ func (a *Authorizer) UnaryInterceptor() grpc.UnaryServerInterceptor {
 func (a *Authorizer) Require(ctx context.Context, permission string) error {
 	userID := Subject(ctx)
 	if strings.TrimSpace(userID) == "" {
-		return standard.NewError(codes.Unauthenticated, "authentication required")
+		return standard.ErrUnauthenticated
 	}
 	var count int64
 	err := a.db.WithContext(ctx).Table("permissions AS p").
@@ -96,8 +96,8 @@ func (a *Authorizer) Require(ctx context.Context, permission string) error {
 		return errx.Wrap(err, "check permission")
 	}
 	if count == 0 {
-		return standard.NewError(codes.PermissionDenied, "permission denied").
-			WithDomainReason("PERMISSION_DENIED", "auth.permission_denied")
+		return standard.ErrPermissionDenied.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_PERMISSION_DENIED)
 	}
 	return nil
 }

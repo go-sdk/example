@@ -3,9 +3,9 @@ syntax = "proto3";
 package app.v1;
 
 import "buf/validate/validate.proto";
-import "common/v1/common.proto";
+import "common/common.proto";
 import "google/api/annotations.proto";
-import "options.proto";
+import "options/options.proto";
 
 service RoleService {
   rpc Create(CreateRoleReq) returns (Role) {
@@ -30,11 +30,11 @@ service RoleService {
     };
     option (server.options.method).permissions = "roles.write";
   }
-  rpc Delete(DeleteRoleReq) returns (common.v1.Empty) {
+  rpc Delete(DeleteRoleReq) returns (server.common.Empty) {
     option (google.api.http) = {delete: "/api/v1/roles/{id}"};
     option (server.options.method).permissions = "roles.write";
   }
-  rpc SetPermissions(SetRolePermissionsReq) returns (common.v1.Empty) {
+  rpc SetPermissions(SetRolePermissionsReq) returns (server.common.Empty) {
     option (google.api.http) = {
       put: "/api/v1/roles/{id}/permissions"
       body: "*"
@@ -48,7 +48,7 @@ message Role {
   string code = 2;
   string name = 3;
   repeated string permission_ids = 4;
-  common.v1.Metadata metadata = 15;
+  server.common.Metadata metadata = 15;
 }
 
 message CreateRoleReq {
@@ -62,11 +62,15 @@ message GetRoleReq {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 message ListRoleReq {
-  common.v1.PagingReq paging = 1;
+  server.common.Paging paging = 1 [(buf.validate.field).cel = {
+    id: "role.paging"
+    message: "paging is invalid"
+    expression: "this.page >= 0 && this.page_size >= 0 && this.page_size <= 100"
+  }];
 }
 message ListRoleResp {
   repeated Role records = 1;
-  common.v1.Paging paging = 2;
+  server.common.Paging paging = 2;
 }
 message UpdateRoleReq {
   string id = 1 [(buf.validate.field).string.min_len = 1];

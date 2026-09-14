@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-sdk/core/seq"
 	"github.com/go-sdk/database/dbx"
+	servercommon "github.com/go-sdk/server/common"
 	"github.com/go-sdk/server/standard"
-	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
@@ -43,25 +43,22 @@ func (s *Role) Get(ctx context.Context, req *appv1.GetRoleReq) (*appv1.Role, err
 }
 
 func (s *Role) List(ctx context.Context, req *appv1.ListRoleReq) (*appv1.ListRoleResp, error) {
-	page, pageSize := int32(0), int32(0)
-	if req.GetPaging() != nil {
-		page, pageSize = req.GetPaging().GetPage(), req.GetPaging().GetPageSize()
-	}
-	page, pageSize, offset := paging(page, pageSize)
+	paging := req.GetPaging()
+	offset, limit := paging.GetOffsetLimit()
 	query := s.db.WithContext(ctx).Model(&model.Role{})
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 	var values []model.Role
-	if err := query.Preload("Permissions").Order("created_at DESC").Offset(offset).Limit(int(pageSize)).Find(&values).Error; err != nil {
+	if err := query.Preload("Permissions").Order("created_at DESC").Offset(offset).Limit(limit).Find(&values).Error; err != nil {
 		return nil, err
 	}
 	records := make([]*appv1.Role, 0, len(values))
 	for _, value := range values {
 		records = append(records, roleToProto(value))
 	}
-	return &appv1.ListRoleResp{Records: records, Paging: &commonv1.Paging{Page: page, PageSize: pageSize, Total: total}}, nil
+	return &appv1.ListRoleResp{Records: records, Paging: paging.WithTotal(total)}, nil
 }
 
 func (s *Role) Update(ctx context.Context, req *appv1.UpdateRoleReq) (*appv1.Role, error) {
@@ -80,13 +77,14 @@ func (s *Role) Update(ctx context.Context, req *appv1.UpdateRoleReq) (*appv1.Rol
 	return roleToProto(value), nil
 }
 
-func (s *Role) Delete(ctx context.Context, req *appv1.DeleteRoleReq) (*commonv1.Empty, error) {
+func (s *Role) Delete(ctx context.Context, req *appv1.DeleteRoleReq) (*servercommon.Empty, error) {
 	var value model.Role
 	if err := s.db.WithContext(ctx).First(&value, "id = ?", req.GetId()).Error; err != nil {
 		return nil, err
 	}
 	if value.Code == "admin" {
-		return nil, standard.NewError(codes.FailedPrecondition, "administrator role cannot be deleted")
+		return nil, standard.ErrFailedPrecondition.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_ADMIN_ROLE_CANNOT_BE_DELETED)
 	}
 	result := s.db.WithContext(ctx).Delete(&value)
 	if result.Error != nil {
@@ -95,10 +93,10 @@ func (s *Role) Delete(ctx context.Context, req *appv1.DeleteRoleReq) (*commonv1.
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &commonv1.Empty{}, nil
+	return &servercommon.Empty{}, nil
 }
 
-func (s *Role) SetPermissions(ctx context.Context, req *appv1.SetRolePermissionsReq) (*commonv1.Empty, error) {
+func (s *Role) SetPermissions(ctx context.Context, req *appv1.SetRolePermissionsReq) (*servercommon.Empty, error) {
 	value, err := s.get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -110,14 +108,14 @@ func (s *Role) SetPermissions(ctx context.Context, req *appv1.SetRolePermissions
 			return nil, err
 		}
 		if len(permissions) != len(ids) {
-			return nil, standard.NewError(codes.InvalidArgument, "one or more permissions do not exist").
-				WithDomainReason("INVALID_PERMISSION_IDS", "role.invalid_permission_ids")
+			return nil, standard.ErrInvalidParam.
+				WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_PERMISSION_IDS)
 		}
 	}
 	if err := s.db.WithContext(ctx).Model(&value).Association("Permissions").Replace(permissions); err != nil {
 		return nil, err
 	}
-	return &commonv1.Empty{}, nil
+	return &servercommon.Empty{}, nil
 }
 
 func (s *Role) get(ctx context.Context, id string) (model.Role, error) {

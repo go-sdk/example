@@ -28,8 +28,19 @@ prepare:				##@ Install buf local plugins.
 .PHONY: generate
 generate:				##@ Lint & Generate proto files.
 	@if command -v buf >/dev/null 2>&1; then \
-		rm -rf gen openapi && \
-		buf lint && buf generate && echo "done."; \
+		buf lint && \
+		tmp_dir=$$(mktemp -d); \
+		trap 'rm -rf "$$tmp_dir"' EXIT; \
+		cp buf.gen.yaml "$$tmp_dir/buf.gen.yaml"; \
+		sed -i.bak -e "s|out: \.$$|out: $$tmp_dir/generated|" -e "s|out: openapi$$|out: $$tmp_dir/generated/openapi|" "$$tmp_dir/buf.gen.yaml"; \
+		rm -f "$$tmp_dir/buf.gen.yaml.bak"; \
+		buf generate --template "$$tmp_dir/buf.gen.yaml"; \
+		test -d "$$tmp_dir/generated/gen"; \
+		test -f "$$tmp_dir/generated/openapi/openapi.swagger.yaml"; \
+		rm -rf gen openapi; \
+		mv "$$tmp_dir/generated/gen" gen; \
+		mv "$$tmp_dir/generated/openapi" openapi; \
+		echo "done."; \
 	else \
 		echo "buf is not installed. Please install it from https://github.com/bufbuild/buf"; \
 		exit 1; \
@@ -51,8 +62,8 @@ build:					##@ Build cmd/app into bin.
 	@go build $(GO_LDFLAGS) -o $(BIN_DIR)/app ./cmd/app
 
 .PHONY: run
-run: build				##@ Run tests/server example.
-	@$(BIN_DIR)/app $(ARGS)
+run: build				##@ Run app.
+	@CONFIG_PATH=config.yaml $(BIN_DIR)/app $(ARGS)
 
 
 .PHONY: help

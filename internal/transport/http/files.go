@@ -1,26 +1,21 @@
 package httptransport
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"mime"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/go-sdk/core/errx"
 	"github.com/go-sdk/core/logx"
 	"github.com/go-sdk/core/seq"
 	"github.com/go-sdk/server/standard"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc/codes"
-	grpcstatus "google.golang.org/grpc/status"
 	"gorm.io/gorm"
 
+	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	appauth "github.com/go-sdk/example/internal/auth"
 	"github.com/go-sdk/example/internal/model"
 )
@@ -50,7 +45,7 @@ func (h *FileHandler) Register(server *standard.Server) error {
 	}
 	routes := []struct {
 		method, path string
-		handler      runtime.HandlerFunc
+		handler      standard.HandlerFunc
 	}{
 		{http.MethodPost, "/api/v1/files", h.Upload},
 		{http.MethodGet, "/api/v1/files/{id}", h.Download},
@@ -64,42 +59,35 @@ func (h *FileHandler) Register(server *standard.Server) error {
 	return nil
 }
 
-func (h *FileHandler) Upload(w http.ResponseWriter, r *http.Request, _ map[string]string) {
-	if err := h.authorizer.Require(r.Context(), "files.write"); err != nil {
-		writeError(w, err)
-		return
+func (h *FileHandler) Upload(c *standard.Context) error {
+	if err := h.authorizer.Require(c, "files.write"); err != nil {
+		return err
 	}
-	value, path, err := h.receive(w, r)
+	value, path, err := h.receive(c)
 	if err != nil {
-		writeError(w, err)
-		return
+		return err
 	}
-	if err := h.db.WithContext(r.Context()).Create(&value).Error; err != nil {
+	if err = h.db.WithContext(c).Create(&value).Error; err != nil {
 		_ = os.Remove(path)
-		writeError(w, err)
-		return
+		return err
 	}
-	writeJSON(w, http.StatusCreated, fileResponseOf(value))
+	return c.JSON(http.StatusCreated, map[string]any{"data": fileResponseOf(value)})
 }
 
-func (h *FileHandler) ReplaceAvatar(w http.ResponseWriter, r *http.Request, params map[string]string) {
-	if err := h.authorizer.Require(r.Context(), "users.write"); err != nil {
-		writeError(w, err)
-		return
+func (h *FileHandler) ReplaceAvatar(c *standard.Context) error {
+	if err := h.authorizer.Require(c, "users.write"); err != nil {
+		return err
 	}
-	userID := params["id"]
 	var user model.User
-	if err := h.db.WithContext(r.Context()).First(&user, "id = ?", userID).Error; err != nil {
-		writeError(w, err)
-		return
+	if err := h.db.WithContext(c).First(&user, "id = ?", c.Param("id")).Error; err != nil {
+		return err
 	}
-	value, path, err := h.receive(w, r)
+	value, path, err := h.receive(c)
 	if err != nil {
-		writeError(w, err)
-		return
+		return err
 	}
 	var oldFile model.File
-	err = h.db.WithContext(r.Context()).Transaction(func(tx *gorm.DB) error {
+	err = h.db.WithContext(c).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&value).Error; err != nil {
 			return err
 		}
@@ -109,95 +97,88 @@ func (h *FileHandler) ReplaceAvatar(w http.ResponseWriter, r *http.Request, para
 			}
 		}
 		return tx.Model(&user).Updates(map[string]any{
-			"avatar_file_id": value.Id, "updated_by": appauth.Subject(r.Context()),
+			"avatar_file_id": value.Id,
+			"updated_by":     appauth.Subject(c),
 		}).Error
 	})
 	if err != nil {
 		_ = os.Remove(path)
-		writeError(w, err)
-		return
+		return err
 	}
-	if oldFile.Id != "" {
-		if err := h.db.WithContext(r.Context()).Delete(&oldFile).Error; err != nil {
-			logx.Ctx(r.Context()).Warn().Err(err).Str("file_id", oldFile.Id).Msg("delete replaced avatar record")
-		} else if err := os.Remove(filepath.Join(h.root, oldFile.StoredName)); err != nil && !errors.Is(err, os.ErrNotExist) {
-			logx.Ctx(r.Context()).Warn().Err(err).Str("file_id", oldFile.Id).Msg("delete replaced avatar file")
-		}
-	}
-	writeJSON(w, http.StatusOK, fileResponseOf(value))
+	h.cleanupReplacedAvatar(c, oldFile)
+	return c.JSON(http.StatusOK, map[string]any{"data": fileResponseOf(value)})
 }
 
-func (h *FileHandler) Download(w http.ResponseWriter, r *http.Request, params map[string]string) {
-	if err := h.authorizer.Require(r.Context(), "files.read"); err != nil {
-		writeError(w, err)
-		return
+func (h *FileHandler) Download(c *standard.Context) error {
+	if err := h.authorizer.Require(c, "files.read"); err != nil {
+		return err
 	}
 	var value model.File
-	if err := h.db.WithContext(r.Context()).First(&value, "id = ?", params["id"]).Error; err != nil {
-		writeError(w, err)
-		return
+	if err := h.db.WithContext(c).First(&value, "id = ?", c.Param("id")).Error; err != nil {
+		return err
 	}
-	file, err := os.Open(filepath.Join(h.root, value.StoredName))
+	data, err := os.ReadFile(filepath.Join(h.root, value.StoredName))
+	if errors.Is(err, os.ErrNotExist) {
+		return standard.ErrNotFound.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_FILE_NOT_FOUND).
+			WithData(map[string]any{"Name": value.OriginalName})
+	}
 	if err != nil {
-		writeError(w, err)
-		return
+		return errx.Wrap(err, "read stored file")
 	}
-	defer func() { _ = file.Close() }()
-	w.Header().Set("Content-Type", value.MIMEType)
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", value.Size))
-	w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": value.OriginalName}))
-	if _, err := io.Copy(w, file); err != nil {
-		return
-	}
+	c.SetHeader("Content-Length", strconv.Itoa(len(data)))
+	c.SetHeader("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": value.OriginalName}))
+	return c.Blob(http.StatusOK, value.MIMEType, data)
 }
 
-func (h *FileHandler) receive(w http.ResponseWriter, r *http.Request) (model.File, string, error) {
+func (h *FileHandler) receive(c *standard.Context) (model.File, string, error) {
 	var value model.File
-	r.Body = http.MaxBytesReader(w, r.Body, h.maxBytes)
-	reader, err := r.MultipartReader()
+	filename, data, err := c.ReadFormFile("file", h.maxBytes)
 	if err != nil {
-		return value, "", errx.Wrap(err, "read multipart request")
+		return value, "", err
 	}
-	var part *multipart.Part
-	for {
-		part, err = reader.NextPart()
-		if errors.Is(err, io.EOF) {
-			return value, "", errx.New("multipart field file is required")
-		}
-		if err != nil {
-			return value, "", errx.Wrap(err, "read uploaded file")
-		}
-		if part.FormName() == "file" && part.FileName() != "" {
-			break
-		}
-		if err := part.Close(); err != nil {
-			return value, "", errx.Wrap(err, "close multipart field")
-		}
+	originalName := filepath.Base(strings.ReplaceAll(filename, `\`, "/"))
+	if originalName == "" || originalName == "." || originalName == ".." {
+		return value, "", standard.ErrInvalidParam.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_FILE_NAME)
 	}
-	defer func() { _ = part.Close() }()
-	originalName := filepath.Base(part.FileName())
-	extension := strings.ToLower(filepath.Ext(originalName))
-	storedName := seq.UUID() + extension
+	storedName := seq.UUID() + strings.ToLower(filepath.Ext(originalName))
 	path := filepath.Join(h.root, storedName)
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o640)
 	if err != nil {
 		return value, "", errx.Wrap(err, "create stored file")
 	}
-	size, copyErr := io.Copy(file, part)
+	_, writeErr := file.Write(data)
 	closeErr := file.Close()
-	if copyErr != nil || closeErr != nil {
+	if err = errx.Join(writeErr, closeErr); err != nil {
 		_ = os.Remove(path)
-		return value, "", errx.Wrap(errors.Join(copyErr, closeErr), "store uploaded file")
+		return value, "", errx.Wrap(err, "store uploaded file")
 	}
+	actor := appauth.Subject(c)
 	value = model.File{
-		Id: seq.NextID(), CreatedBy: appauth.Subject(r.Context()), UpdatedBy: appauth.Subject(r.Context()),
-		OwnerID: appauth.Subject(r.Context()), OriginalName: originalName, StoredName: storedName,
-		MIMEType: part.Header.Get("Content-Type"), Size: size,
-	}
-	if value.MIMEType == "" {
-		value.MIMEType = "application/octet-stream"
+		Id:           seq.NextID(),
+		CreatedBy:    actor,
+		UpdatedBy:    actor,
+		OwnerID:      actor,
+		OriginalName: originalName,
+		StoredName:   storedName,
+		MIMEType:     http.DetectContentType(data),
+		Size:         int64(len(data)),
 	}
 	return value, path, nil
+}
+
+func (h *FileHandler) cleanupReplacedAvatar(c *standard.Context, oldFile model.File) {
+	if oldFile.Id == "" {
+		return
+	}
+	if err := h.db.WithContext(c).Delete(&oldFile).Error; err != nil {
+		logx.Ctx(c).Warn().Err(err).Str("file_id", oldFile.Id).Msg("delete replaced avatar record")
+		return
+	}
+	if err := os.Remove(filepath.Join(h.root, oldFile.StoredName)); err != nil && !errors.Is(err, os.ErrNotExist) {
+		logx.Ctx(c).Warn().Err(err).Str("file_id", oldFile.Id).Msg("delete replaced avatar file")
+	}
 }
 
 func fileResponseOf(value model.File) fileResponse {
@@ -207,28 +188,6 @@ func fileResponseOf(value model.File) fileResponse {
 	}
 }
 
-func writeJSON(w http.ResponseWriter, status int, data any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(map[string]any{"data": data})
-}
-
-func writeError(w http.ResponseWriter, err error) {
-	httpStatus := http.StatusInternalServerError
-	var maxBytesError *http.MaxBytesError
-	switch {
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		httpStatus = http.StatusNotFound
-	case errors.As(err, &maxBytesError):
-		httpStatus = http.StatusRequestEntityTooLarge
-	case strings.Contains(err.Error(), "multipart") || strings.Contains(err.Error(), "uploaded file"):
-		httpStatus = http.StatusBadRequest
-	case grpcstatus.Code(err) == codes.Unauthenticated:
-		httpStatus = http.StatusUnauthorized
-	case grpcstatus.Code(err) == codes.PermissionDenied:
-		httpStatus = http.StatusForbidden
-	}
-	http.Error(w, http.StatusText(httpStatus), httpStatus)
-}
-
-var _ runtime.HandlerFunc = (*FileHandler)(nil).Upload
+var _ standard.HandlerFunc = (*FileHandler)(nil).Upload
+var _ standard.HandlerFunc = (*FileHandler)(nil).Download
+var _ standard.HandlerFunc = (*FileHandler)(nil).ReplaceAvatar

@@ -8,7 +8,7 @@ package appv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	_ "github.com/go-sdk/server/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,7 +31,7 @@ type Role struct {
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	PermissionIds []string               `protobuf:"bytes,4,rep,name=permission_ids,json=permissionIds,proto3" json:"permission_ids,omitempty"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,7 +94,7 @@ func (x *Role) GetPermissionIds() []string {
 	return nil
 }
 
-func (x *Role) GetMetadata() *v1.Metadata {
+func (x *Role) GetMetadata() *common.Metadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -199,7 +199,7 @@ func (x *GetRoleReq) GetId() string {
 
 type ListRoleReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *v1.PagingReq          `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -234,7 +234,7 @@ func (*ListRoleReq) Descriptor() ([]byte, []int) {
 	return file_app_v1_role_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListRoleReq) GetPaging() *v1.PagingReq {
+func (x *ListRoleReq) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -244,7 +244,7 @@ func (x *ListRoleReq) GetPaging() *v1.PagingReq {
 type ListRoleResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Records       []*Role                `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *v1.Paging             `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -286,7 +286,7 @@ func (x *ListRoleResp) GetRecords() []*Role {
 	return nil
 }
 
-func (x *ListRoleResp) GetPaging() *v1.Paging {
+func (x *ListRoleResp) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -445,25 +445,26 @@ var File_app_v1_role_proto protoreflect.FileDescriptor
 
 const file_app_v1_role_proto_rawDesc = "" +
 	"\n" +
-	"\x11app/v1/role.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\roptions.proto\"\x96\x01\n" +
+	"\x11app/v1/role.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x15options/options.proto\"\x9a\x01\n" +
 	"\x04Role\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
-	"\x0epermission_ids\x18\x04 \x03(\tR\rpermissionIds\x12/\n" +
-	"\bmetadata\x18\x0f \x01(\v2\x13.common.v1.MetadataR\bmetadata\"b\n" +
+	"\x0epermission_ids\x18\x04 \x03(\tR\rpermissionIds\x123\n" +
+	"\bmetadata\x18\x0f \x01(\v2\x17.server.common.MetadataR\bmetadata\"b\n" +
 	"\rCreateRoleReq\x121\n" +
 	"\x04code\x18\x01 \x01(\tB\x1d\xbaH\x1ar\x182\x16^[a-z][a-z0-9_]{1,63}$R\x04code\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"%\n" +
 	"\n" +
 	"GetRoleReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\";\n" +
-	"\vListRoleReq\x12,\n" +
-	"\x06paging\x18\x01 \x01(\v2\x14.common.v1.PagingReqR\x06paging\"a\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xa5\x01\n" +
+	"\vListRoleReq\x12\x95\x01\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBf\xbaHc\xba\x01`\n" +
+	"\vrole.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"e\n" +
 	"\fListRoleResp\x12&\n" +
-	"\arecords\x18\x01 \x03(\v2\f.app.v1.RoleR\arecords\x12)\n" +
-	"\x06paging\x18\x02 \x01(\v2\x11.common.v1.PagingR\x06paging\"H\n" +
+	"\arecords\x18\x01 \x03(\v2\f.app.v1.RoleR\arecords\x12-\n" +
+	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"H\n" +
 	"\rUpdateRoleReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
@@ -472,16 +473,16 @@ const file_app_v1_role_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"e\n" +
 	"\x15SetRolePermissionsReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x123\n" +
-	"\x0epermission_ids\x18\x02 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\rpermissionIds2\xe0\x04\n" +
+	"\x0epermission_ids\x18\x02 \x03(\tB\f\xbaH\t\x92\x01\x06\"\x04r\x02\x10\x01R\rpermissionIds2\xe9\x04\n" +
 	"\vRoleService\x12Z\n" +
 	"\x06Create\x12\x15.app.v1.CreateRoleReq\x1a\f.app.v1.Role\"+\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/rolesʞ\xf2\x84\x06\r\x12\vroles.write\x12U\n" +
 	"\x03Get\x12\x12.app.v1.GetRoleReq\x1a\f.app.v1.Role\",\x82\xd3\xe4\x93\x02\x14\x12\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\f\x12\n" +
 	"roles.read\x12Z\n" +
 	"\x04List\x12\x13.app.v1.ListRoleReq\x1a\x14.app.v1.ListRoleResp\"'\x82\xd3\xe4\x93\x02\x0f\x12\r/api/v1/rolesʞ\xf2\x84\x06\f\x12\n" +
 	"roles.read\x12_\n" +
-	"\x06Update\x12\x15.app.v1.UpdateRoleReq\x1a\f.app.v1.Role\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12`\n" +
-	"\x06Delete\x12\x15.app.v1.DeleteRoleReq\x1a\x10.common.v1.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12\x7f\n" +
-	"\x0eSetPermissions\x12\x1d.app.v1.SetRolePermissionsReq\x1a\x10.common.v1.Empty\"<\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/roles/{id}/permissionsʞ\xf2\x84\x06\r\x12\vroles.writeB|\n" +
+	"\x06Update\x12\x15.app.v1.UpdateRoleReq\x1a\f.app.v1.Role\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12d\n" +
+	"\x06Delete\x12\x15.app.v1.DeleteRoleReq\x1a\x14.server.common.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12\x83\x01\n" +
+	"\x0eSetPermissions\x12\x1d.app.v1.SetRolePermissionsReq\x1a\x14.server.common.Empty\"<\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/roles/{id}/permissionsʞ\xf2\x84\x06\r\x12\vroles.writeB|\n" +
 	"\n" +
 	"com.app.v1B\tRoleProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -507,16 +508,15 @@ var file_app_v1_role_proto_goTypes = []any{
 	(*UpdateRoleReq)(nil),         // 5: app.v1.UpdateRoleReq
 	(*DeleteRoleReq)(nil),         // 6: app.v1.DeleteRoleReq
 	(*SetRolePermissionsReq)(nil), // 7: app.v1.SetRolePermissionsReq
-	(*v1.Metadata)(nil),           // 8: common.v1.Metadata
-	(*v1.PagingReq)(nil),          // 9: common.v1.PagingReq
-	(*v1.Paging)(nil),             // 10: common.v1.Paging
-	(*v1.Empty)(nil),              // 11: common.v1.Empty
+	(*common.Metadata)(nil),       // 8: server.common.Metadata
+	(*common.Paging)(nil),         // 9: server.common.Paging
+	(*common.Empty)(nil),          // 10: server.common.Empty
 }
 var file_app_v1_role_proto_depIdxs = []int32{
-	8,  // 0: app.v1.Role.metadata:type_name -> common.v1.Metadata
-	9,  // 1: app.v1.ListRoleReq.paging:type_name -> common.v1.PagingReq
+	8,  // 0: app.v1.Role.metadata:type_name -> server.common.Metadata
+	9,  // 1: app.v1.ListRoleReq.paging:type_name -> server.common.Paging
 	0,  // 2: app.v1.ListRoleResp.records:type_name -> app.v1.Role
-	10, // 3: app.v1.ListRoleResp.paging:type_name -> common.v1.Paging
+	9,  // 3: app.v1.ListRoleResp.paging:type_name -> server.common.Paging
 	1,  // 4: app.v1.RoleService.Create:input_type -> app.v1.CreateRoleReq
 	2,  // 5: app.v1.RoleService.Get:input_type -> app.v1.GetRoleReq
 	3,  // 6: app.v1.RoleService.List:input_type -> app.v1.ListRoleReq
@@ -527,8 +527,8 @@ var file_app_v1_role_proto_depIdxs = []int32{
 	0,  // 11: app.v1.RoleService.Get:output_type -> app.v1.Role
 	4,  // 12: app.v1.RoleService.List:output_type -> app.v1.ListRoleResp
 	0,  // 13: app.v1.RoleService.Update:output_type -> app.v1.Role
-	11, // 14: app.v1.RoleService.Delete:output_type -> common.v1.Empty
-	11, // 15: app.v1.RoleService.SetPermissions:output_type -> common.v1.Empty
+	10, // 14: app.v1.RoleService.Delete:output_type -> server.common.Empty
+	10, // 15: app.v1.RoleService.SetPermissions:output_type -> server.common.Empty
 	10, // [10:16] is the sub-list for method output_type
 	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name

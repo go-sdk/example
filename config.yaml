@@ -1,7 +1,29 @@
 server:
   address: ":8080"
+log:
+  file:
+    path: ""
+    size: 30
+    age: 90
+    backups: 10
+    localtime: true
+    compress: true
+sonyflake:
+  start_year: 2020
+  machine_id: 56565
 database:
   dsn: ""
+  host: ""
+  port: 5432
+  name: ""
+  user: ""
+  password: ""
+  ssl_mode: disable
+  pool:
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 30m
+    conn_max_idle_time: 5m
 auth:
   jwt_secret: ""
   expires_in: 24h

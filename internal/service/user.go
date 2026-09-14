@@ -2,12 +2,16 @@ package service
 
 import (
 	"context"
+	"errors"
+	"os"
+	"path/filepath"
 
 	"github.com/go-sdk/core/errx"
+	"github.com/go-sdk/core/logx"
 	"github.com/go-sdk/core/seq"
+	servercommon "github.com/go-sdk/server/common"
 	"github.com/go-sdk/server/standard"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
@@ -18,10 +22,13 @@ import (
 
 type User struct {
 	appv1.UnimplementedUserServiceServer
-	db *gorm.DB
+	db          *gorm.DB
+	storageRoot string
 }
 
-func NewUser(db *gorm.DB) *User { return &User{db: db} }
+func NewUser(db *gorm.DB, storageRoot string) *User {
+	return &User{db: db, storageRoot: storageRoot}
+}
 
 func (s *User) Create(ctx context.Context, req *appv1.CreateUserReq) (*appv1.User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.GetPassword()), bcrypt.DefaultCost)
@@ -48,29 +55,22 @@ func (s *User) Get(ctx context.Context, req *appv1.GetUserReq) (*appv1.User, err
 }
 
 func (s *User) List(ctx context.Context, req *appv1.ListUserReq) (*appv1.ListUserResp, error) {
-	var pageReq *commonv1.PagingReq
-	if req != nil {
-		pageReq = req.GetPaging()
-	}
-	var page, pageSize int32
-	if pageReq != nil {
-		page, pageSize = pageReq.GetPage(), pageReq.GetPageSize()
-	}
-	page, pageSize, offset := paging(page, pageSize)
+	paging := req.GetPaging()
+	offset, limit := paging.GetOffsetLimit()
 	query := s.db.WithContext(ctx).Model(&model.User{})
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 	var values []model.User
-	if err := query.Preload("Roles").Order("created_at DESC").Offset(offset).Limit(int(pageSize)).Find(&values).Error; err != nil {
+	if err := query.Preload("Roles").Order("created_at DESC").Offset(offset).Limit(limit).Find(&values).Error; err != nil {
 		return nil, err
 	}
 	records := make([]*appv1.User, 0, len(values))
 	for _, value := range values {
 		records = append(records, userToProto(value))
 	}
-	return &appv1.ListUserResp{Records: records, Paging: &commonv1.Paging{Page: page, PageSize: pageSize, Total: total}}, nil
+	return &appv1.ListUserResp{Records: records, Paging: paging.WithTotal(total)}, nil
 }
 
 func (s *User) Update(ctx context.Context, req *appv1.UpdateUserReq) (*appv1.User, error) {
@@ -89,21 +89,43 @@ func (s *User) Update(ctx context.Context, req *appv1.UpdateUserReq) (*appv1.Use
 	return userToProto(value), nil
 }
 
-func (s *User) Delete(ctx context.Context, req *appv1.DeleteUserReq) (*commonv1.Empty, error) {
+func (s *User) Delete(ctx context.Context, req *appv1.DeleteUserReq) (*servercommon.Empty, error) {
 	if req.GetId() == appauth.Subject(ctx) {
-		return nil, standard.NewError(codes.FailedPrecondition, "current user cannot be deleted")
+		return nil, standard.ErrFailedPrecondition.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_CURRENT_USER_CANNOT_BE_DELETED)
 	}
-	result := s.db.WithContext(ctx).Where("id = ?", req.GetId()).Delete(&model.User{})
-	if result.Error != nil {
-		return nil, result.Error
+	var avatar model.File
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user model.User
+		if err := tx.First(&user, "id = ?", req.GetId()).Error; err != nil {
+			return err
+		}
+		if user.AvatarFileID != nil {
+			if err := tx.First(&avatar, "id = ?", *user.AvatarFileID).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+		}
+		if err := tx.Delete(&user).Error; err != nil {
+			return err
+		}
+		if avatar.Id != "" {
+			return tx.Delete(&avatar).Error
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-	if result.RowsAffected == 0 {
-		return nil, gorm.ErrRecordNotFound
+	if avatar.Id != "" {
+		path := filepath.Join(s.storageRoot, avatar.StoredName)
+		if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			logx.Ctx(ctx).Warn().Err(err).Str("file_id", avatar.Id).Msg("delete user avatar file")
+		}
 	}
-	return &commonv1.Empty{}, nil
+	return &servercommon.Empty{}, nil
 }
 
-func (s *User) SetRoles(ctx context.Context, req *appv1.SetUserRolesReq) (*commonv1.Empty, error) {
+func (s *User) SetRoles(ctx context.Context, req *appv1.SetUserRolesReq) (*servercommon.Empty, error) {
 	value, err := s.get(ctx, req.GetId())
 	if err != nil {
 		return nil, err
@@ -115,14 +137,14 @@ func (s *User) SetRoles(ctx context.Context, req *appv1.SetUserRolesReq) (*commo
 			return nil, err
 		}
 		if len(roles) != len(ids) {
-			return nil, standard.NewError(codes.InvalidArgument, "one or more roles do not exist").
-				WithDomainReason("INVALID_ROLE_IDS", "user.invalid_role_ids")
+			return nil, standard.ErrInvalidParam.
+				WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_ROLE_IDS)
 		}
 	}
 	if err := s.db.WithContext(ctx).Model(&value).Association("Roles").Replace(roles); err != nil {
 		return nil, err
 	}
-	return &commonv1.Empty{}, nil
+	return &servercommon.Empty{}, nil
 }
 
 func (s *User) get(ctx context.Context, id string) (model.User, error) {

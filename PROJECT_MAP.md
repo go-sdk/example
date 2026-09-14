@@ -8,33 +8,34 @@ example/
 ├── gen/                               Protobuf、gRPC 与 Gateway 生成代码
 ├── internal/auth/                     JWT 签发和 RBAC 权限拦截器
 ├── internal/config/                   配置加载与启动参数校验
+├── internal/i18n/                     业务错误的嵌入式翻译资源
 ├── internal/migration/                数据表迁移、内置权限和管理员初始化
 ├── internal/model/                    用户、角色、权限、关联表和文件模型
 ├── internal/service/                  Proto 服务实现
 ├── internal/transport/http/           上传、下载和头像替换接口
 ├── openapi/openapi.swagger.yaml       生成的 HTTP API 文档
 ├── proto/app/v1/                      业务服务和消息定义
-├── proto/common/v1/                   分页、元数据和 OpenAPI 公共定义
+├── proto/common/v1/                   应用错误码和 OpenAPI 公共定义
 ├── config.yaml                        非秘密默认配置
 ├── docker-compose.yaml                应用和 PostgreSQL 编排
 ├── Dockerfile                         两阶段应用镜像
 └── Makefile                           生成、检查和编译入口
 ```
 
-Proto 直接通过 `buf.build/go-sdk/server` 引用 server 的方法与字段选项，生成代码使用
-`github.com/go-sdk/server/options` 提供的运行时扩展描述符，不在本仓库维护副本。
+Proto 直接通过 `buf.build/go-sdk/server` 引用 `server.common` 公共类型以及方法、字段和错误码
+选项。生成代码使用 `github.com/go-sdk/server/common` 和 `options`，本仓库不维护公共类型副本。
 
 ## 启动链路
 
 ```text
 cmd/app serve
-  -> core/config 加载 config.yaml 和 APP__ 环境变量
-  -> core/logx 设置进程日志字段
-  -> database/dbx.Open 按需打开 PostgreSQL 并注册关闭函数
-  -> database/migrate 注册带 advisory lock 的迁移初始化函数
+  -> core/config 在进程初始化期从 CONFIG_PATH 和 APP__ 加载统一配置
+  -> 应用校验配置并安装默认实例，core/logx 按 log.* 重新初始化
+  -> database/dbx.Open 按 database.* 连接池配置打开 PostgreSQL 并注册关闭函数
+  -> database/migrate 从迁移文件名注册带 advisory lock 的迁移初始化函数
   -> 初始化内置权限、admin 角色和首次管理员
-  -> server/standard.New 注册 gRPC、Gateway、JWT、RBAC 和错误转换
-  -> 注册额外文件 HTTP 路由
+  -> server/standard.New 注册 gRPC、Gateway、JWT、RBAC、错误转换和 i18n
+  -> 注册使用 standard.Context 的额外文件 HTTP 路由
   -> core/lifex.Init 按顺序执行迁移、初始化和 Server.Start
   -> core/lifex.Wait 处理信号并逆序释放 Server 和数据库
 ```
@@ -62,7 +63,7 @@ HTTP /api/v1/*
 HandlePath
   -> server HTTP 请求上下文、JWT、访问日志和 Recovery
   -> FileHandler 显式检查 files.read、files.write 或 users.write
-  -> 文件系统保存随机文件名
+  -> standard.Context 限制并解析 multipart，文件系统保存随机文件名
   -> files 表保存元数据
 ```
 
@@ -94,6 +95,10 @@ users --< user_roles >-- roles --< role_permissions >-- permissions
 
 ## 数据库迁移
 
-迁移 `20260913_010000_01_create_rbac_tables` 创建全部业务表，`20260913_020000_02_add_rbac_reverse_indexes`
-为 `user_roles(role_id)` 和 `role_permissions(permission_id)` 补充反向索引。迁移在服务监听端口前执行，
+迁移文件 `20260913_010000_01_create_rbac_tables.go` 创建全部业务表，
+`20260913_020000_02_add_rbac_reverse_indexes.go` 为 `user_roles(role_id)` 和
+`role_permissions(permission_id)` 补充反向索引。文件名即迁移 ID；迁移在服务监听端口前执行，
 并由 `database/dbx/migrate` 使用 PostgreSQL session-level advisory lock 防止多个副本并发迁移。
+
+Bootstrap 每次启动都会补齐内置权限、管理员角色、首次管理员及其角色绑定；只追加缺失的
+内置权限，不移除管理员角色后来绑定的其他权限。

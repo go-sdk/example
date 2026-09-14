@@ -16,6 +16,8 @@ import (
 	"github.com/go-sdk/example/internal/model"
 )
 
+var migrations migrate.Migrations
+
 var builtinPermissions = []model.Permission{
 	{Metadata: dbx.Metadata{Id: "permission_users_read"}, Code: "users.read", Name: "查看用户"},
 	{Metadata: dbx.Metadata{Id: "permission_users_write"}, Code: "users.write", Name: "管理用户"},
@@ -27,60 +29,8 @@ var builtinPermissions = []model.Permission{
 	{Metadata: dbx.Metadata{Id: "permission_files_write"}, Code: "files.write", Name: "上传文件"},
 }
 
-// rbacReverseIndexes 权限检查按 role_id、permission_id 反向连接关联表，需为两个关联表补充反向索引。
-var rbacReverseIndexes = []struct {
-	value any
-	name  string
-}{
-	{&model.UserRole{}, "idx_user_roles_role_id"},
-	{&model.RolePermission{}, "idx_role_permissions_permission_id"},
-}
-
 func New(db *gorm.DB) (*migrate.Migrator, error) {
-	return migrate.New(db, migrate.Migrations{
-		{
-			ID: "20260913_010000_01_create_rbac_tables",
-			Up: func(tx *gorm.DB) error {
-				return tx.AutoMigrate(
-					&model.User{}, &model.Role{}, &model.Permission{},
-					&model.UserRole{}, &model.RolePermission{}, &model.File{},
-				)
-			},
-			Down: func(tx *gorm.DB) error {
-				return tx.Migrator().DropTable(
-					&model.RolePermission{}, &model.UserRole{}, &model.File{},
-					&model.Permission{}, &model.Role{}, &model.User{},
-				)
-			},
-		},
-		{
-			ID: "20260913_020000_02_add_rbac_reverse_indexes",
-			Up: func(tx *gorm.DB) error {
-				migrator := tx.Migrator()
-				for _, index := range rbacReverseIndexes {
-					if migrator.HasIndex(index.value, index.name) {
-						continue
-					}
-					if err := migrator.CreateIndex(index.value, index.name); err != nil {
-						return err
-					}
-				}
-				return nil
-			},
-			Down: func(tx *gorm.DB) error {
-				migrator := tx.Migrator()
-				for _, index := range rbacReverseIndexes {
-					if !migrator.HasIndex(index.value, index.name) {
-						continue
-					}
-					if err := migrator.DropIndex(index.value, index.name); err != nil {
-						return err
-					}
-				}
-				return nil
-			},
-		},
-	})
+	return migrate.New(db, migrations)
 }
 
 func Bootstrap(ctx context.Context, db *gorm.DB, cfg config.Config) error {
@@ -98,16 +48,13 @@ func Bootstrap(ctx context.Context, db *gorm.DB, cfg config.Config) error {
 		if err != nil {
 			return errx.Wrap(err, "seed administrator role")
 		}
-		if err := syncRolePermissions(tx, role, permissions); err != nil {
+		if err := ensureRolePermissions(tx, role, permissions); err != nil {
 			return errx.Wrap(err, "assign administrator permissions")
 		}
 
-		user, created, err := ensureAdminUser(tx, cfg)
+		user, _, err := ensureAdminUser(tx, cfg)
 		if err != nil {
 			return errx.Wrap(err, "create bootstrap administrator")
-		}
-		if !created {
-			return nil
 		}
 		link := model.UserRole{UserID: user.Id, RoleID: role.Id}
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&link).Error; err != nil {
@@ -163,20 +110,14 @@ func ensureAdminRole(tx *gorm.DB) (model.Role, error) {
 	return role, nil
 }
 
-// syncRolePermissions 以显式关联表写入同步角色权限；并发副本重复插入时忽略冲突，避免 Association.Replace 报错。
-func syncRolePermissions(tx *gorm.DB, role model.Role, permissions []model.Permission) error {
+// ensureRolePermissions 只补齐内置权限，保留管理员角色后来绑定的其他权限。
+func ensureRolePermissions(tx *gorm.DB, role model.Role, permissions []model.Permission) error {
 	if len(permissions) == 0 {
 		return nil
 	}
-	permissionIDs := make([]string, 0, len(permissions))
 	relations := make([]model.RolePermission, 0, len(permissions))
 	for _, permission := range permissions {
-		permissionIDs = append(permissionIDs, permission.Id)
 		relations = append(relations, model.RolePermission{RoleID: role.Id, PermissionID: permission.Id})
-	}
-	if err := tx.Where("role_id = ? AND permission_id NOT IN ?", role.Id, permissionIDs).
-		Delete(&model.RolePermission{}).Error; err != nil {
-		return err
 	}
 	return tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&relations).Error
 }

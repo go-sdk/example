@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/go-sdk/core/seq"
+	servercommon "github.com/go-sdk/server/common"
 	"github.com/go-sdk/server/standard"
-	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
@@ -43,25 +43,22 @@ func (s *Permission) Get(ctx context.Context, req *appv1.GetPermissionReq) (*app
 }
 
 func (s *Permission) List(ctx context.Context, req *appv1.ListPermissionReq) (*appv1.ListPermissionResp, error) {
-	page, pageSize := int32(0), int32(0)
-	if req.GetPaging() != nil {
-		page, pageSize = req.GetPaging().GetPage(), req.GetPaging().GetPageSize()
-	}
-	page, pageSize, offset := paging(page, pageSize)
+	paging := req.GetPaging()
+	offset, limit := paging.GetOffsetLimit()
 	query := s.db.WithContext(ctx).Model(&model.Permission{})
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
 	}
 	var values []model.Permission
-	if err := query.Order("created_at DESC").Offset(offset).Limit(int(pageSize)).Find(&values).Error; err != nil {
+	if err := query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&values).Error; err != nil {
 		return nil, err
 	}
 	records := make([]*appv1.Permission, 0, len(values))
 	for _, value := range values {
 		records = append(records, permissionToProto(value))
 	}
-	return &appv1.ListPermissionResp{Records: records, Paging: &commonv1.Paging{Page: page, PageSize: pageSize, Total: total}}, nil
+	return &appv1.ListPermissionResp{Records: records, Paging: paging.WithTotal(total)}, nil
 }
 
 func (s *Permission) Update(ctx context.Context, req *appv1.UpdatePermissionReq) (*appv1.Permission, error) {
@@ -76,13 +73,14 @@ func (s *Permission) Update(ctx context.Context, req *appv1.UpdatePermissionReq)
 	return s.Get(ctx, &appv1.GetPermissionReq{Id: req.GetId()})
 }
 
-func (s *Permission) Delete(ctx context.Context, req *appv1.DeletePermissionReq) (*commonv1.Empty, error) {
+func (s *Permission) Delete(ctx context.Context, req *appv1.DeletePermissionReq) (*servercommon.Empty, error) {
 	var value model.Permission
 	if err := s.db.WithContext(ctx).First(&value, "id = ?", req.GetId()).Error; err != nil {
 		return nil, err
 	}
 	if strings.HasPrefix(value.Id, "permission_") {
-		return nil, standard.NewError(codes.FailedPrecondition, "built-in permission cannot be deleted")
+		return nil, standard.ErrFailedPrecondition.
+			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_BUILTIN_PERMISSION_CANNOT_BE_DELETED)
 	}
 	result := s.db.WithContext(ctx).Delete(&value)
 	if result.Error != nil {
@@ -91,5 +89,5 @@ func (s *Permission) Delete(ctx context.Context, req *appv1.DeletePermissionReq)
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &commonv1.Empty{}, nil
+	return &servercommon.Empty{}, nil
 }

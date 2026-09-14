@@ -8,7 +8,7 @@ package appv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	_ "github.com/go-sdk/server/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -30,7 +30,7 @@ type Permission struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -86,7 +86,7 @@ func (x *Permission) GetName() string {
 	return ""
 }
 
-func (x *Permission) GetMetadata() *v1.Metadata {
+func (x *Permission) GetMetadata() *common.Metadata {
 	if x != nil {
 		return x.Metadata
 	}
@@ -191,7 +191,7 @@ func (x *GetPermissionReq) GetId() string {
 
 type ListPermissionReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *v1.PagingReq          `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -226,7 +226,7 @@ func (*ListPermissionReq) Descriptor() ([]byte, []int) {
 	return file_app_v1_permission_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ListPermissionReq) GetPaging() *v1.PagingReq {
+func (x *ListPermissionReq) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -236,7 +236,7 @@ func (x *ListPermissionReq) GetPaging() *v1.PagingReq {
 type ListPermissionResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Records       []*Permission          `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *v1.Paging             `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -278,7 +278,7 @@ func (x *ListPermissionResp) GetRecords() []*Permission {
 	return nil
 }
 
-func (x *ListPermissionResp) GetPaging() *v1.Paging {
+func (x *ListPermissionResp) GetPaging() *common.Paging {
 	if x != nil {
 		return x.Paging
 	}
@@ -385,36 +385,37 @@ var File_app_v1_permission_proto protoreflect.FileDescriptor
 
 const file_app_v1_permission_proto_rawDesc = "" +
 	"\n" +
-	"\x17app/v1/permission.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\roptions.proto\"u\n" +
+	"\x17app/v1/permission.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x15options/options.proto\"y\n" +
 	"\n" +
 	"Permission\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12/\n" +
-	"\bmetadata\x18\x0f \x01(\v2\x13.common.v1.MetadataR\bmetadata\"j\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x123\n" +
+	"\bmetadata\x18\x0f \x01(\v2\x17.server.common.MetadataR\bmetadata\"j\n" +
 	"\x13CreatePermissionReq\x123\n" +
 	"\x04code\x18\x01 \x01(\tB\x1f\xbaH\x1cr\x1a2\x18^[a-z][a-z0-9_.]{1,127}$R\x04code\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"+\n" +
 	"\x10GetPermissionReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"A\n" +
-	"\x11ListPermissionReq\x12,\n" +
-	"\x06paging\x18\x01 \x01(\v2\x14.common.v1.PagingReqR\x06paging\"m\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xb1\x01\n" +
+	"\x11ListPermissionReq\x12\x9b\x01\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBl\xbaHi\xba\x01f\n" +
+	"\x11permission.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"q\n" +
 	"\x12ListPermissionResp\x12,\n" +
-	"\arecords\x18\x01 \x03(\v2\x12.app.v1.PermissionR\arecords\x12)\n" +
-	"\x06paging\x18\x02 \x01(\v2\x11.common.v1.PagingR\x06paging\"N\n" +
+	"\arecords\x18\x01 \x03(\v2\x12.app.v1.PermissionR\arecords\x12-\n" +
+	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"N\n" +
 	"\x13UpdatePermissionReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12\x1e\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\".\n" +
 	"\x13DeletePermissionReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id2\xd7\x04\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id2\xdb\x04\n" +
 	"\x11PermissionService\x12r\n" +
 	"\x06Create\x12\x1b.app.v1.CreatePermissionReq\x1a\x12.app.v1.Permission\"7\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/permissionsʞ\xf2\x84\x06\x13\x12\x11permissions.write\x12m\n" +
 	"\x03Get\x12\x18.app.v1.GetPermissionReq\x1a\x12.app.v1.Permission\"8\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x12\x12\x10permissions.read\x12r\n" +
 	"\x04List\x12\x19.app.v1.ListPermissionReq\x1a\x1a.app.v1.ListPermissionResp\"3\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/permissionsʞ\xf2\x84\x06\x12\x12\x10permissions.read\x12w\n" +
-	"\x06Update\x12\x1b.app.v1.UpdatePermissionReq\x1a\x12.app.v1.Permission\"<\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.write\x12r\n" +
-	"\x06Delete\x12\x1b.app.v1.DeletePermissionReq\x1a\x10.common.v1.Empty\"9\x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.writeB\x82\x01\n" +
+	"\x06Update\x12\x1b.app.v1.UpdatePermissionReq\x1a\x12.app.v1.Permission\"<\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.write\x12v\n" +
+	"\x06Delete\x12\x1b.app.v1.DeletePermissionReq\x1a\x14.server.common.Empty\"9\x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.writeB\x82\x01\n" +
 	"\n" +
 	"com.app.v1B\x0fPermissionProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
@@ -439,31 +440,30 @@ var file_app_v1_permission_proto_goTypes = []any{
 	(*ListPermissionResp)(nil),  // 4: app.v1.ListPermissionResp
 	(*UpdatePermissionReq)(nil), // 5: app.v1.UpdatePermissionReq
 	(*DeletePermissionReq)(nil), // 6: app.v1.DeletePermissionReq
-	(*v1.Metadata)(nil),         // 7: common.v1.Metadata
-	(*v1.PagingReq)(nil),        // 8: common.v1.PagingReq
-	(*v1.Paging)(nil),           // 9: common.v1.Paging
-	(*v1.Empty)(nil),            // 10: common.v1.Empty
+	(*common.Metadata)(nil),     // 7: server.common.Metadata
+	(*common.Paging)(nil),       // 8: server.common.Paging
+	(*common.Empty)(nil),        // 9: server.common.Empty
 }
 var file_app_v1_permission_proto_depIdxs = []int32{
-	7,  // 0: app.v1.Permission.metadata:type_name -> common.v1.Metadata
-	8,  // 1: app.v1.ListPermissionReq.paging:type_name -> common.v1.PagingReq
-	0,  // 2: app.v1.ListPermissionResp.records:type_name -> app.v1.Permission
-	9,  // 3: app.v1.ListPermissionResp.paging:type_name -> common.v1.Paging
-	1,  // 4: app.v1.PermissionService.Create:input_type -> app.v1.CreatePermissionReq
-	2,  // 5: app.v1.PermissionService.Get:input_type -> app.v1.GetPermissionReq
-	3,  // 6: app.v1.PermissionService.List:input_type -> app.v1.ListPermissionReq
-	5,  // 7: app.v1.PermissionService.Update:input_type -> app.v1.UpdatePermissionReq
-	6,  // 8: app.v1.PermissionService.Delete:input_type -> app.v1.DeletePermissionReq
-	0,  // 9: app.v1.PermissionService.Create:output_type -> app.v1.Permission
-	0,  // 10: app.v1.PermissionService.Get:output_type -> app.v1.Permission
-	4,  // 11: app.v1.PermissionService.List:output_type -> app.v1.ListPermissionResp
-	0,  // 12: app.v1.PermissionService.Update:output_type -> app.v1.Permission
-	10, // 13: app.v1.PermissionService.Delete:output_type -> common.v1.Empty
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	7, // 0: app.v1.Permission.metadata:type_name -> server.common.Metadata
+	8, // 1: app.v1.ListPermissionReq.paging:type_name -> server.common.Paging
+	0, // 2: app.v1.ListPermissionResp.records:type_name -> app.v1.Permission
+	8, // 3: app.v1.ListPermissionResp.paging:type_name -> server.common.Paging
+	1, // 4: app.v1.PermissionService.Create:input_type -> app.v1.CreatePermissionReq
+	2, // 5: app.v1.PermissionService.Get:input_type -> app.v1.GetPermissionReq
+	3, // 6: app.v1.PermissionService.List:input_type -> app.v1.ListPermissionReq
+	5, // 7: app.v1.PermissionService.Update:input_type -> app.v1.UpdatePermissionReq
+	6, // 8: app.v1.PermissionService.Delete:input_type -> app.v1.DeletePermissionReq
+	0, // 9: app.v1.PermissionService.Create:output_type -> app.v1.Permission
+	0, // 10: app.v1.PermissionService.Get:output_type -> app.v1.Permission
+	4, // 11: app.v1.PermissionService.List:output_type -> app.v1.ListPermissionResp
+	0, // 12: app.v1.PermissionService.Update:output_type -> app.v1.Permission
+	9, // 13: app.v1.PermissionService.Delete:output_type -> server.common.Empty
+	9, // [9:14] is the sub-list for method output_type
+	4, // [4:9] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_app_v1_permission_proto_init() }

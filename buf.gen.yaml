@@ -8,7 +8,11 @@ managed:
     - file_option: go_package
       value: github.com/go-sdk/server/options
       module: buf.build/go-sdk/server
-      path: options.proto
+      path: options/options.proto
+    - file_option: go_package
+      value: github.com/go-sdk/server/common
+      module: buf.build/go-sdk/server
+      path: common/common.proto
   disable:
     - module: buf.build/googleapis/googleapis
     - module: buf.build/bufbuild/protovalidate

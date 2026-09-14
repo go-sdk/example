@@ -10,6 +10,7 @@ RUN addgroup -S app && adduser -S -G app app
 WORKDIR /app
 COPY --from=build /out/app /usr/local/bin/app
 COPY config.yaml ./config.yaml
+ENV CONFIG_PATH=/app/config.yaml
 RUN mkdir -p /app/data && chown -R app:app /app
 USER app
 EXPOSE 8080

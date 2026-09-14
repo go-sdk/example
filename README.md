@@ -2,12 +2,13 @@
 
 这是一个简易 Go 应用模板，集中演示以下三个基础包的组合方式：
 
-- `github.com/go-sdk/core`：配置、日志、生命周期、命令行、ID 和错误处理。
-- `github.com/go-sdk/database`：PostgreSQL、GORM 日志、软删除和版本迁移。
-- `github.com/go-sdk/server`：单端口 gRPC/Gateway、统一响应、JWT、参数校验和 Recovery。
+- `github.com/go-sdk/core`：统一配置、日志、生命周期、命令行、ID 和错误处理。
+- `github.com/go-sdk/database`：配置驱动的 PostgreSQL 连接池、GORM 日志、软删除和文件式迁移。
+- `github.com/go-sdk/server`：公共 Proto、单端口 gRPC/Gateway、统一响应、JWT、i18n 和 Recovery。
 
 模板包含用户、角色、权限 RBAC，以及文件上传、下载和用户头像替换接口。
-Proto 中使用的 server 方法和字段选项直接依赖 `buf.build/go-sdk/server`。
+Proto 中的标识、元数据和分页使用 `server.common`，方法、字段和业务错误码选项直接依赖
+`buf.build/go-sdk/server`。
 
 ## 环境要求
 
@@ -36,7 +37,8 @@ docker compose up --build
 - 邮箱：`bootstrap.email`
 - 密码：环境变量 `APP__BOOTSTRAP__PASSWORD`
 
-管理员已存在时不会覆盖密码或其他资料。
+管理员已存在时不会覆盖密码或其他资料，但每次启动都会补齐管理员角色绑定和缺失的内置权限，
+不会移除管理员角色后来增加的其他权限。
 
 ## API 模型
 
@@ -58,7 +60,8 @@ Gateway 成功响应由 server 统一包装：
 {"data":{"id":"123"}}
 ```
 
-文件接口使用 `multipart/form-data`，文件字段名固定为 `file`。默认最大请求大小为 10 MiB。
+文件接口使用 `multipart/form-data`，文件字段名固定为 `file`。默认最大文件大小为 10 MiB，
+额外 HTTP 接口的鉴权、错误转换和本地化由 server 统一处理。
 
 登录示例：
 
@@ -81,20 +84,28 @@ curl -sS http://127.0.0.1:8080/api/v1/files \
 
 ## 配置
 
-默认配置位于 `config.yaml`，也可以通过 `CONFIG_PATH` 指定另一份 YAML 或 JSON 配置文件。
+默认配置位于 `config.yaml`。启动进程应通过 `CONFIG_PATH` 指定它，使日志、Snowflake 和数据库
+在各自包初始化或打开连接前读取同一份配置；`make run` 和容器镜像已自动设置该变量。
 `core/config` 使用 `APP__` 前缀和双下划线覆盖嵌套配置：
 
 | 配置                       | 环境变量                         | 说明           |
 |----------------------------|----------------------------------|----------------|
 | `server.address`           | `APP__SERVER__ADDRESS`           | 监听地址       |
-| `database.dsn`             | `APP__DATABASE__DSN`             | PostgreSQL DSN |
+| `database.dsn`             | `APP__DATABASE__DSN`             | 可选的完整 PostgreSQL DSN |
+| `database.host`            | `APP__DATABASE__HOST`            | 拆分连接字段中的主机 |
+| `database.port`            | `APP__DATABASE__PORT`            | 拆分连接字段中的端口 |
+| `database.name`            | `APP__DATABASE__NAME`            | 拆分连接字段中的数据库名 |
+| `database.user`            | `APP__DATABASE__USER`            | 拆分连接字段中的用户名 |
+| `database.password`        | `APP__DATABASE__PASSWORD`        | 拆分连接字段中的密码 |
 | `auth.jwt_secret`          | `APP__AUTH__JWT_SECRET`          | 至少 32 个字符 |
 | `auth.expires_in`          | `APP__AUTH__EXPIRES_IN`          | Go duration    |
 | `storage.root`             | `APP__STORAGE__ROOT`             | 文件存储目录   |
 | `storage.max_upload_bytes` | `APP__STORAGE__MAX_UPLOAD_BYTES` | 上传请求上限   |
 | `bootstrap.password`       | `APP__BOOTSTRAP__PASSWORD`       | 首次管理员密码 |
 
-不要把真实 DSN、JWT 密钥或管理员密码写入 `config.yaml` 或提交到 Git。
+显式 `database.dsn` 优先；未设置时，应用使用拆分字段并对用户名和密码进行 URL 编码后构造
+PostgreSQL URL。连接池读取 `database.pool.*`，日志读取 `log.*`，Snowflake 读取
+`sonyflake.*`。不要把真实 DSN、数据库密码、JWT 密钥或管理员密码写入 `config.yaml` 或提交到 Git。
 
 ## 开发命令
 
@@ -104,13 +115,16 @@ make lint            # go mod tidy 和 golangci-lint
 make build           # 纯编译到 bin/app
 ```
 
-`make generate` 会重新创建 `gen/` 和 `openapi/`。生成代码和协议必须在同一提交中保持同步。
+`make generate` 先执行 Buf lint，再生成到临时目录，只有完整成功后才替换 `gen/` 和
+`openapi/`。生成代码和协议必须在同一提交中保持同步。
 
 ## 安全与边界
 
 - JWT 使用 HS256，生产环境必须注入足够随机的独立密钥并使用 TLS 入口。
 - 密码使用 bcrypt 保存，Proto 将密码和 Token 标记为敏感字段，登录方法跳过 Payload 日志。
+- 业务错误码由 Proto 枚举定义，英文文案来自枚举选项，中文文案由嵌入式 TOML 提供。
 - RBAC 在每次请求时查询数据库，权限关系修改立即生效。
 - 文件名不会直接作为磁盘路径；磁盘使用随机名称，原始文件名只作为元数据保存。
+- 删除带头像的用户时会在数据库事务中软删除头像元数据，并在提交后尽力删除磁盘文件。
 - 当前文件存储适合单机模板。多副本部署应替换为对象存储，并补充恶意文件检测、配额和清理任务。
 - 自动迁移和静态编译不能代替真实 PostgreSQL、鉴权和文件上传的运行时验证。

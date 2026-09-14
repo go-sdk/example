@@ -8,7 +8,7 @@ package appv1
 
 import (
 	context "context"
-	v1 "github.com/go-sdk/example/gen/common/v1"
+	common "github.com/go-sdk/server/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -35,7 +35,7 @@ type PermissionServiceClient interface {
 	Get(ctx context.Context, in *GetPermissionReq, opts ...grpc.CallOption) (*Permission, error)
 	List(ctx context.Context, in *ListPermissionReq, opts ...grpc.CallOption) (*ListPermissionResp, error)
 	Update(ctx context.Context, in *UpdatePermissionReq, opts ...grpc.CallOption) (*Permission, error)
-	Delete(ctx context.Context, in *DeletePermissionReq, opts ...grpc.CallOption) (*v1.Empty, error)
+	Delete(ctx context.Context, in *DeletePermissionReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
 type permissionServiceClient struct {
@@ -86,9 +86,9 @@ func (c *permissionServiceClient) Update(ctx context.Context, in *UpdatePermissi
 	return out, nil
 }
 
-func (c *permissionServiceClient) Delete(ctx context.Context, in *DeletePermissionReq, opts ...grpc.CallOption) (*v1.Empty, error) {
+func (c *permissionServiceClient) Delete(ctx context.Context, in *DeletePermissionReq, opts ...grpc.CallOption) (*common.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.Empty)
+	out := new(common.Empty)
 	err := c.cc.Invoke(ctx, PermissionService_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ type PermissionServiceServer interface {
 	Get(context.Context, *GetPermissionReq) (*Permission, error)
 	List(context.Context, *ListPermissionReq) (*ListPermissionResp, error)
 	Update(context.Context, *UpdatePermissionReq) (*Permission, error)
-	Delete(context.Context, *DeletePermissionReq) (*v1.Empty, error)
+	Delete(context.Context, *DeletePermissionReq) (*common.Empty, error)
 	mustEmbedUnimplementedPermissionServiceServer()
 }
 
@@ -127,7 +127,7 @@ func (UnimplementedPermissionServiceServer) List(context.Context, *ListPermissio
 func (UnimplementedPermissionServiceServer) Update(context.Context, *UpdatePermissionReq) (*Permission, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedPermissionServiceServer) Delete(context.Context, *DeletePermissionReq) (*v1.Empty, error) {
+func (UnimplementedPermissionServiceServer) Delete(context.Context, *DeletePermissionReq) (*common.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedPermissionServiceServer) mustEmbedUnimplementedPermissionServiceServer() {}

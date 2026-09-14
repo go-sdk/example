@@ -18,7 +18,12 @@ services:
     build: .
     environment:
       APP__SERVER__ADDRESS: ":8080"
-      APP__DATABASE__DSN: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/app?sslmode=disable"
+      APP__DATABASE__HOST: postgres
+      APP__DATABASE__PORT: 5432
+      APP__DATABASE__NAME: app
+      APP__DATABASE__USER: postgres
+      APP__DATABASE__PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      APP__DATABASE__SSL_MODE: disable
       APP__AUTH__JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       APP__BOOTSTRAP__PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?set BOOTSTRAP_ADMIN_PASSWORD in .env}
       APP__STORAGE__ROOT: /app/data

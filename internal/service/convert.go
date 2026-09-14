@@ -3,8 +3,9 @@ package service
 import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	servercommon "github.com/go-sdk/server/common"
+
 	appv1 "github.com/go-sdk/example/gen/app/v1"
-	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	"github.com/go-sdk/example/internal/model"
 )
 
@@ -20,7 +21,7 @@ func userToProto(value model.User) *appv1.User {
 	return &appv1.User{
 		Id: value.Id, Username: value.Username, Email: value.Email, Enabled: value.Enabled,
 		AvatarFileId: avatarID, RoleIds: roles,
-		Metadata: &commonv1.Metadata{
+		Metadata: &servercommon.Metadata{
 			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
 			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
 		},
@@ -34,7 +35,7 @@ func roleToProto(value model.Role) *appv1.Role {
 	}
 	return &appv1.Role{
 		Id: value.Id, Code: value.Code, Name: value.Name, PermissionIds: permissions,
-		Metadata: &commonv1.Metadata{
+		Metadata: &servercommon.Metadata{
 			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
 			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
 		},
@@ -44,7 +45,7 @@ func roleToProto(value model.Role) *appv1.Role {
 func permissionToProto(value model.Permission) *appv1.Permission {
 	return &appv1.Permission{
 		Id: value.Id, Code: value.Code, Name: value.Name,
-		Metadata: &commonv1.Metadata{
+		Metadata: &servercommon.Metadata{
 			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
 			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
 		},

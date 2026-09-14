@@ -133,7 +133,7 @@ var File_app_v1_auth_proto protoreflect.FileDescriptor
 
 const file_app_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x11app/v1/auth.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\roptions.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"a\n" +
+	"\x11app/v1/auth.proto\x12\x06app.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x15options/options.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"a\n" +
 	"\bLoginReq\x12%\n" +
 	"\busername\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18@R\busername\x12.\n" +
 	"\bpassword\x18\x02 \x01(\tB\x12\xbaH\ar\x05\x10\b\x18\x80\x01\xba\x9e\xf2\x84\x06\x02\b\x01R\bpassword\"W\n" +

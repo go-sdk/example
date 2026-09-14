@@ -13,12 +13,13 @@ import (
 	_ "github.com/go-sdk/database/dbx/postgres"
 	"github.com/go-sdk/server/standard"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
+	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	appauth "github.com/go-sdk/example/internal/auth"
 	appconfig "github.com/go-sdk/example/internal/config"
+	appi18n "github.com/go-sdk/example/internal/i18n"
 	"github.com/go-sdk/example/internal/migration"
 	"github.com/go-sdk/example/internal/service"
 	httptransport "github.com/go-sdk/example/internal/transport/http"
@@ -47,7 +48,6 @@ func serve() error {
 	if err := appauth.ValidatePolicies(); err != nil {
 		return err
 	}
-	logx.Init("")
 	logx.SetGlobalKV("app", "go-sdk-example")
 	logx.SetGlobalKV("version", osx.GetVersion().Version)
 
@@ -69,9 +69,10 @@ func serve() error {
 		standard.WithJWTSecret([]byte(cfg.Auth.JWTSecret)),
 		standard.WithUnaryInterceptors(authorizer.UnaryInterceptor()),
 		standard.WithErrorConverters(databaseErrorConverter()),
+		standard.WithI18nFS(appi18n.Files),
 		standard.WithGRPCRegister(func(registrar grpc.ServiceRegistrar) {
 			appv1.RegisterAuthServiceServer(registrar, service.NewAuth(db, []byte(cfg.Auth.JWTSecret), cfg.Auth.ExpiresIn))
-			appv1.RegisterUserServiceServer(registrar, service.NewUser(db))
+			appv1.RegisterUserServiceServer(registrar, service.NewUser(db, cfg.Storage.Root))
 			appv1.RegisterRoleServiceServer(registrar, service.NewRole(db))
 			appv1.RegisterPermissionServiceServer(registrar, service.NewPermission(db))
 		}),
@@ -99,14 +100,14 @@ func databaseErrorConverter() standard.ErrorConverter {
 	return standard.ErrorConvertFunc(func(err error) (standard.RespError, bool) {
 		switch {
 		case errx.Is(err, gorm.ErrRecordNotFound):
-			return standard.NewError(codes.NotFound, "record not found").
-				WithDomainReason("RECORD_NOT_FOUND", "record.not_found"), true
+			return standard.ErrNotFound.
+				WithErrorCode(commonv1.ErrorCode_ERROR_CODE_RECORD_NOT_FOUND), true
 		case errx.Is(err, gorm.ErrDuplicatedKey):
-			return standard.NewError(codes.AlreadyExists, "record already exists").
-				WithDomainReason("RECORD_ALREADY_EXISTS", "record.already_exists"), true
+			return standard.ErrAlreadyExists.
+				WithErrorCode(commonv1.ErrorCode_ERROR_CODE_RECORD_ALREADY_EXISTS), true
 		case errx.Is(err, gorm.ErrForeignKeyViolated):
-			return standard.NewError(codes.FailedPrecondition, "record is in use").
-				WithDomainReason("RECORD_IN_USE", "record.in_use"), true
+			return standard.ErrFailedPrecondition.
+				WithErrorCode(commonv1.ErrorCode_ERROR_CODE_RECORD_IN_USE), true
 		default:
 			return standard.RespError{}, false
 		}

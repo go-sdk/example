@@ -4,9 +4,9 @@ go 1.27.0
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.2
-	github.com/go-sdk/core v1.4.1
-	github.com/go-sdk/database v1.0.1
-	github.com/go-sdk/server v1.1.1
+	github.com/go-sdk/core v1.4.2
+	github.com/go-sdk/database v1.0.2
+	github.com/go-sdk/server v1.3.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/spf13/cast v1.10.0
@@ -21,6 +21,7 @@ require (
 	buf.build/go/protovalidate v1.4.0 // indirect
 	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.3 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/elastic/gmux v0.3.3 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
@@ -37,6 +38,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/rotisserie/eris v0.5.4 // indirect
 	github.com/rs/zerolog v1.35.1 // indirect
 	github.com/samber/lo v1.53.0 // indirect
