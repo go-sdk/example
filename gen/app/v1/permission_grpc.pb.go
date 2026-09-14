@@ -30,11 +30,18 @@ const (
 // PermissionServiceClient is the client API for PermissionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// PermissionService 提供权限资源管理能力。
 type PermissionServiceClient interface {
+	// Create 创建权限。
 	Create(ctx context.Context, in *CreatePermissionReq, opts ...grpc.CallOption) (*Permission, error)
+	// Get 按标识查询权限。
 	Get(ctx context.Context, in *GetPermissionReq, opts ...grpc.CallOption) (*Permission, error)
+	// List 分页查询权限。
 	List(ctx context.Context, in *ListPermissionReq, opts ...grpc.CallOption) (*ListPermissionResp, error)
+	// Update 更新权限名称。
 	Update(ctx context.Context, in *UpdatePermissionReq, opts ...grpc.CallOption) (*Permission, error)
+	// Delete 删除非内置权限。
 	Delete(ctx context.Context, in *DeletePermissionReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
@@ -99,11 +106,18 @@ func (c *permissionServiceClient) Delete(ctx context.Context, in *DeletePermissi
 // PermissionServiceServer is the server API for PermissionService service.
 // All implementations must embed UnimplementedPermissionServiceServer
 // for forward compatibility.
+//
+// PermissionService 提供权限资源管理能力。
 type PermissionServiceServer interface {
+	// Create 创建权限。
 	Create(context.Context, *CreatePermissionReq) (*Permission, error)
+	// Get 按标识查询权限。
 	Get(context.Context, *GetPermissionReq) (*Permission, error)
+	// List 分页查询权限。
 	List(context.Context, *ListPermissionReq) (*ListPermissionResp, error)
+	// Update 更新权限名称。
 	Update(context.Context, *UpdatePermissionReq) (*Permission, error)
+	// Delete 删除非内置权限。
 	Delete(context.Context, *DeletePermissionReq) (*common.Empty, error)
 	mustEmbedUnimplementedPermissionServiceServer()
 }

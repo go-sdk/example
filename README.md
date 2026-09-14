@@ -1,7 +1,8 @@
 # go-sdk example
 
-这是一个简易 Go 应用模板，集中演示以下三个基础包的组合方式：
+这是一个简易 Go 应用模板，集中演示约定式应用包与三个基础包的组合方式：
 
+- `github.com/go-sdk/app`：统一配置、数据库、迁移、Server 注册和进程生命周期。
 - `github.com/go-sdk/core`：统一配置、日志、生命周期、命令行、ID 和错误处理。
 - `github.com/go-sdk/database`：配置驱动的 PostgreSQL 连接池、GORM 日志、软删除和文件式迁移。
 - `github.com/go-sdk/server`：公共 Proto、单端口 gRPC/Gateway、统一响应、JWT、i18n 和 Recovery。
@@ -9,6 +10,10 @@
 模板包含用户、角色、权限 RBAC，以及文件上传、下载和用户头像替换接口。
 Proto 中的标识、元数据和分页使用 `server.common`，方法、字段和业务错误码选项直接依赖
 `buf.build/go-sdk/server`。
+
+入口只导入 PostgreSQL 驱动以及 `migration`、`route`、`service` 注册包，然后调用
+`app.Main()`。Model 通过全局 `app.DB()` 使用数据库，每个 Model 独立一个文件并封装自身
+查询和写入；Service 保留业务接口实现，不保存数据库实例。
 
 ## 环境要求
 
@@ -21,7 +26,8 @@ Proto 中的标识、元数据和分页使用 `server.common`，方法、字段�
 
 ## 快速启动
 
-复制环境变量模板并把三个占位值替换为随机的本地开发凭据：
+复制环境变量模板并把三个占位值替换为随机的本地开发凭据。Compose 通过 PostgreSQL
+标准的 `PGPASSWORD` 向驱动传递数据库密码，DSN 本身不嵌入密码：
 
 ```bash
 cp .env.example .env
@@ -80,7 +86,7 @@ curl -sS http://127.0.0.1:8080/api/v1/files \
 ```
 
 生成的 Swagger 2.0 文档位于 `openapi/openapi.swagger.yaml`，其 200 响应的 schema 描述
-`data` 字段内的消息结构。特殊文件接口由 `standard.Server.HandlePath` 注册，不在生成文档内。
+`data` 字段内的消息结构。特殊文件接口由 `app.RegisterRoute` 注册，不在生成文档内。
 
 ## 配置
 
@@ -90,22 +96,19 @@ curl -sS http://127.0.0.1:8080/api/v1/files \
 
 | 配置                       | 环境变量                         | 说明           |
 |----------------------------|----------------------------------|----------------|
+| `app.name`                 | `APP__APP__NAME`                 | 服务标识       |
 | `server.address`           | `APP__SERVER__ADDRESS`           | 监听地址       |
-| `database.dsn`             | `APP__DATABASE__DSN`             | 可选的完整 PostgreSQL DSN |
-| `database.host`            | `APP__DATABASE__HOST`            | 拆分连接字段中的主机 |
-| `database.port`            | `APP__DATABASE__PORT`            | 拆分连接字段中的端口 |
-| `database.name`            | `APP__DATABASE__NAME`            | 拆分连接字段中的数据库名 |
-| `database.user`            | `APP__DATABASE__USER`            | 拆分连接字段中的用户名 |
-| `database.password`        | `APP__DATABASE__PASSWORD`        | 拆分连接字段中的密码 |
+| `database.driver`          | `APP__DATABASE__DRIVER`          | 数据库驱动，默认 `postgres` |
+| `database.dsn`             | `APP__DATABASE__DSN`             | 必填的 PostgreSQL DSN |
 | `auth.jwt_secret`          | `APP__AUTH__JWT_SECRET`          | 至少 32 个字符 |
 | `auth.expires_in`          | `APP__AUTH__EXPIRES_IN`          | Go duration    |
 | `storage.root`             | `APP__STORAGE__ROOT`             | 文件存储目录   |
 | `storage.max_upload_bytes` | `APP__STORAGE__MAX_UPLOAD_BYTES` | 上传请求上限   |
 | `bootstrap.password`       | `APP__BOOTSTRAP__PASSWORD`       | 首次管理员密码 |
 
-显式 `database.dsn` 优先；未设置时，应用使用拆分字段并对用户名和密码进行 URL 编码后构造
-PostgreSQL URL。连接池读取 `database.pool.*`，日志读取 `log.*`，Snowflake 读取
-`sonyflake.*`。不要把真实 DSN、数据库密码、JWT 密钥或管理员密码写入 `config.yaml` 或提交到 Git。
+`app` 直接使用 `core/config` 的全局默认实例。连接池读取 `database.pool.*`，日志读取
+`log.*`，Snowflake 读取 `sonyflake.*`。不要把真实 DSN、数据库密码、JWT 密钥或管理员密码
+写入 `config.yaml` 或提交到 Git。
 
 ## 开发命令
 

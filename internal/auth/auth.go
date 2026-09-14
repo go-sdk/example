@@ -14,64 +14,23 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
-	"google.golang.org/protobuf/types/descriptorpb"
-	"gorm.io/gorm"
 
 	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	"github.com/go-sdk/example/internal/model"
 )
 
-type Authorizer struct{ db *gorm.DB }
-
-func NewAuthorizer(db *gorm.DB) *Authorizer { return &Authorizer{db: db} }
-
-// ValidatePolicies 保证每个应用 RPC 都显式声明匿名访问或所需权限。
-func ValidatePolicies() error {
-	methodCount := 0
-	var validationErr error
-	protoregistry.GlobalFiles.RangeFiles(func(file protoreflect.FileDescriptor) bool {
-		if file.Package() != "app.v1" {
-			return true
-		}
-		services := file.Services()
-		for serviceIndex := 0; serviceIndex < services.Len(); serviceIndex++ {
-			methods := services.Get(serviceIndex).Methods()
-			for methodIndex := 0; methodIndex < methods.Len(); methodIndex++ {
-				methodCount++
-				method := methods.Get(methodIndex)
-				value, err := optionFromDescriptor(method)
-				if err != nil {
-					validationErr = err
-					return false
-				}
-				if value == nil || (!value.GetSkipAuth() && len(value.GetPermissions()) == 0) {
-					validationErr = errx.Newf("auth policy is required for %s", method.FullName())
-					return false
-				}
-			}
-		}
-		return true
-	})
-	if validationErr != nil {
-		return validationErr
-	}
-	if methodCount == 0 {
-		return errx.New("no application rpc policies found")
-	}
-	return nil
-}
-
-func (a *Authorizer) UnaryInterceptor() grpc.UnaryServerInterceptor {
+func UnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		methodOption, err := resolveMethodOption(info.FullMethod)
 		if err != nil {
 			return nil, standard.ErrInternal.WithMessage("resolve method permissions")
 		}
-		if strings.HasPrefix(info.FullMethod, "/app.v1.") && methodOption == nil {
-			return nil, standard.ErrInternal.WithMessage("method permission policy is required")
+		if strings.HasPrefix(info.FullMethod, "/app.v1.") &&
+			(methodOption == nil || (!methodOption.GetSkipAuth() && len(methodOption.GetPermissions()) == 0)) {
+			return nil, standard.ErrUnauthenticated
 		}
 		for _, permission := range methodOption.GetPermissions() {
-			if err := a.Require(ctx, permission); err != nil {
+			if err := Require(ctx, permission); err != nil {
 				return nil, err
 			}
 		}
@@ -79,23 +38,16 @@ func (a *Authorizer) UnaryInterceptor() grpc.UnaryServerInterceptor {
 	}
 }
 
-func (a *Authorizer) Require(ctx context.Context, permission string) error {
+func Require(ctx context.Context, permission string) error {
 	userID := Subject(ctx)
 	if strings.TrimSpace(userID) == "" {
 		return standard.ErrUnauthenticated
 	}
-	var count int64
-	err := a.db.WithContext(ctx).Table("permissions AS p").
-		Joins("JOIN role_permissions AS rp ON rp.permission_id = p.id").
-		Joins("JOIN roles AS r ON r.id = rp.role_id").
-		Joins("JOIN user_roles AS ur ON ur.role_id = rp.role_id").
-		Joins("JOIN users AS u ON u.id = ur.user_id").
-		Where("u.id = ? AND u.enabled = ? AND u.deleted_at = 0 AND r.deleted_at = 0 AND p.deleted_at = 0 AND p.code = ?", userID, true, permission).
-		Count(&count).Error
+	allowed, err := model.HasPermission(ctx, userID, permission)
 	if err != nil {
 		return errx.Wrap(err, "check permission")
 	}
-	if count == 0 {
+	if !allowed {
 		return standard.ErrPermissionDenied.
 			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_PERMISSION_DENIED)
 	}
@@ -110,8 +62,10 @@ func Sign(user model.User, secret []byte, expiresIn time.Duration) (string, time
 	now := time.Now()
 	expiresAt := now.Add(expiresIn)
 	claims := jwt.MapClaims{
-		"sub": user.Id, "username": user.Username,
-		"iat": now.Unix(), "exp": expiresAt.Unix(),
+		"sub":      user.Id,
+		"username": user.Username,
+		"iat":      now.Unix(),
+		"exp":      expiresAt.Unix(),
 	}
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
 	return token, expiresAt, err
@@ -126,8 +80,8 @@ func resolveMethodOption(fullMethod string) (*options.MethodOptions, error) {
 }
 
 func optionFromDescriptor(descriptor protoreflect.MethodDescriptor) (*options.MethodOptions, error) {
-	methodOptions, ok := descriptor.Options().(*descriptorpb.MethodOptions)
-	if !ok || !proto.HasExtension(methodOptions, options.E_Method) {
+	methodOptions := descriptor.Options()
+	if methodOptions == nil || !proto.HasExtension(methodOptions, options.E_Method) {
 		return nil, nil
 	}
 	value, _ := proto.GetExtension(methodOptions, options.E_Method).(*options.MethodOptions)

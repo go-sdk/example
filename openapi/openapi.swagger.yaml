@@ -1,13 +1,17 @@
 swagger: "2.0"
 info:
   title: Go SDK Example API
-  description: 基于 go-sdk/core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。
+  description: 基于 go-sdk/app 整合 core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。
   version: 1.0.0
 tags:
   - name: app.v1.AuthService
+    description: AuthService 提供用户身份认证能力。
   - name: app.v1.PermissionService
+    description: PermissionService 提供权限资源管理能力。
   - name: app.v1.RoleService
+    description: RoleService 提供角色及其权限关系的管理能力。
   - name: app.v1.UserService
+    description: UserService 提供用户及其角色关系的管理能力。
 consumes:
   - application/json
 produces:
@@ -15,6 +19,7 @@ produces:
 paths:
   /api/v1/auth/login:
     post:
+      summary: Login 校验用户名和密码并签发访问令牌。
       operationId: AuthService_Login
       responses:
         "200":
@@ -32,6 +37,7 @@ paths:
       security: []
   /api/v1/permissions:
     get:
+      summary: List 分页查询权限。
       operationId: PermissionService_List
       responses:
         "200":
@@ -60,6 +66,7 @@ paths:
       tags:
         - app.v1.PermissionService
     post:
+      summary: Create 创建权限。
       operationId: PermissionService_Create
       responses:
         "200":
@@ -76,6 +83,7 @@ paths:
         - app.v1.PermissionService
   /api/v1/permissions/{id}:
     get:
+      summary: Get 按标识查询权限。
       operationId: PermissionService_Get
       responses:
         "200":
@@ -84,12 +92,14 @@ paths:
             $ref: '#/definitions/app.v1.Permission'
       parameters:
         - name: id
+          description: id 是待查询的权限标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.PermissionService
     delete:
+      summary: Delete 删除非内置权限。
       operationId: PermissionService_Delete
       responses:
         "200":
@@ -98,12 +108,14 @@ paths:
             $ref: '#/definitions/server.common.Empty'
       parameters:
         - name: id
+          description: id 是待删除的权限标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.PermissionService
     put:
+      summary: Update 更新权限名称。
       operationId: PermissionService_Update
       responses:
         "200":
@@ -112,6 +124,7 @@ paths:
             $ref: '#/definitions/app.v1.Permission'
       parameters:
         - name: id
+          description: id 是待更新的权限标识。
           in: path
           required: true
           type: string
@@ -124,6 +137,7 @@ paths:
         - app.v1.PermissionService
   /api/v1/roles:
     get:
+      summary: List 分页查询角色。
       operationId: RoleService_List
       responses:
         "200":
@@ -152,6 +166,7 @@ paths:
       tags:
         - app.v1.RoleService
     post:
+      summary: Create 创建角色。
       operationId: RoleService_Create
       responses:
         "200":
@@ -168,6 +183,7 @@ paths:
         - app.v1.RoleService
   /api/v1/roles/{id}:
     get:
+      summary: Get 按标识查询角色。
       operationId: RoleService_Get
       responses:
         "200":
@@ -176,12 +192,14 @@ paths:
             $ref: '#/definitions/app.v1.Role'
       parameters:
         - name: id
+          description: id 是待查询的角色标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.RoleService
     delete:
+      summary: Delete 删除非管理员角色。
       operationId: RoleService_Delete
       responses:
         "200":
@@ -190,12 +208,14 @@ paths:
             $ref: '#/definitions/server.common.Empty'
       parameters:
         - name: id
+          description: id 是待删除的角色标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.RoleService
     put:
+      summary: Update 更新角色名称。
       operationId: RoleService_Update
       responses:
         "200":
@@ -204,6 +224,7 @@ paths:
             $ref: '#/definitions/app.v1.Role'
       parameters:
         - name: id
+          description: id 是待更新的角色标识。
           in: path
           required: true
           type: string
@@ -216,6 +237,7 @@ paths:
         - app.v1.RoleService
   /api/v1/roles/{id}/permissions:
     put:
+      summary: SetPermissions 替换角色关联的权限集合。
       operationId: RoleService_SetPermissions
       responses:
         "200":
@@ -224,6 +246,7 @@ paths:
             $ref: '#/definitions/server.common.Empty'
       parameters:
         - name: id
+          description: id 是待设置权限的角色标识。
           in: path
           required: true
           type: string
@@ -236,6 +259,7 @@ paths:
         - app.v1.RoleService
   /api/v1/users:
     get:
+      summary: List 分页查询用户。
       operationId: UserService_List
       responses:
         "200":
@@ -264,6 +288,7 @@ paths:
       tags:
         - app.v1.UserService
     post:
+      summary: Create 创建用户。
       operationId: UserService_Create
       responses:
         "200":
@@ -280,6 +305,7 @@ paths:
         - app.v1.UserService
   /api/v1/users/{id}:
     get:
+      summary: Get 按标识查询用户。
       operationId: UserService_Get
       responses:
         "200":
@@ -288,12 +314,14 @@ paths:
             $ref: '#/definitions/app.v1.User'
       parameters:
         - name: id
+          description: id 是待查询的用户标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.UserService
     delete:
+      summary: Delete 删除非当前登录用户。
       operationId: UserService_Delete
       responses:
         "200":
@@ -302,12 +330,14 @@ paths:
             $ref: '#/definitions/server.common.Empty'
       parameters:
         - name: id
+          description: id 是待删除的用户标识。
           in: path
           required: true
           type: string
       tags:
         - app.v1.UserService
     put:
+      summary: Update 更新用户邮箱和启用状态。
       operationId: UserService_Update
       responses:
         "200":
@@ -316,6 +346,7 @@ paths:
             $ref: '#/definitions/app.v1.User'
       parameters:
         - name: id
+          description: id 是待更新的用户标识。
           in: path
           required: true
           type: string
@@ -328,6 +359,7 @@ paths:
         - app.v1.UserService
   /api/v1/users/{id}/roles:
     put:
+      summary: SetRoles 替换用户关联的角色集合。
       operationId: UserService_SetRoles
       responses:
         "200":
@@ -336,6 +368,7 @@ paths:
             $ref: '#/definitions/server.common.Empty'
       parameters:
         - name: id
+          description: id 是待设置角色的用户标识。
           in: path
           required: true
           type: string
@@ -352,26 +385,37 @@ definitions:
     properties:
       code:
         type: string
+        title: code 是权限检查使用的唯一编码。
       name:
         type: string
+        title: name 是权限显示名称。
+    title: CreatePermissionReq 是创建权限请求。
   app.v1.CreateRoleReq:
     type: object
     properties:
       code:
         type: string
+        title: code 是角色的唯一编码。
       name:
         type: string
+        title: name 是角色显示名称。
+    title: CreateRoleReq 是角色创建请求。
   app.v1.CreateUserReq:
     type: object
     properties:
       username:
         type: string
+        title: username 是唯一登录用户名。
       email:
         type: string
+        title: email 是唯一联系邮箱。
       password:
         type: string
+        title: password 是用户的初始登录密码。
       enabled:
         type: boolean
+        title: enabled 表示创建后是否允许用户登录和访问接口。
+    title: CreateUserReq 是用户创建请求。
   app.v1.ListPermissionResp:
     type: object
     properties:
@@ -380,8 +424,11 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/app.v1.Permission'
+        title: records 是当前页权限记录。
       paging:
         $ref: '#/definitions/server.common.Paging'
+        title: paging 包含规范化分页参数和总记录数。
+    title: ListPermissionResp 是权限分页查询结果。
   app.v1.ListRoleResp:
     type: object
     properties:
@@ -390,8 +437,11 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/app.v1.Role'
+        title: records 是当前页角色记录。
       paging:
         $ref: '#/definitions/server.common.Paging'
+        title: paging 包含规范化分页参数和总记录数。
+    title: ListRoleResp 是角色分页查询结果。
   app.v1.ListUserResp:
     type: object
     properties:
@@ -400,54 +450,76 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/app.v1.User'
+        title: records 是当前页用户记录。
       paging:
         $ref: '#/definitions/server.common.Paging'
+        title: paging 包含规范化分页参数和总记录数。
+    title: ListUserResp 是用户分页查询结果。
   app.v1.LoginReq:
     type: object
     properties:
       username:
         type: string
+        title: username 是登录用户名。
       password:
         type: string
+        title: password 是登录密码。
+    title: LoginReq 是用户登录请求。
   app.v1.LoginResp:
     type: object
     properties:
       accessToken:
         type: string
+        title: access_token 是后续请求使用的 Bearer JWT。
       expiresAt:
         type: string
         format: int64
+        title: expires_at 是令牌失效时间的 Unix 秒时间戳。
+    title: LoginResp 是登录成功后的令牌信息。
   app.v1.Permission:
     type: object
     properties:
       id:
         type: string
+        title: id 是权限标识。
       code:
         type: string
+        title: code 是权限检查使用的唯一编码。
       name:
         type: string
+        title: name 是权限显示名称。
       metadata:
         $ref: '#/definitions/server.common.Metadata'
+        title: metadata 是权限的审计信息。
+    title: Permission 表示可分配给角色的权限。
   app.v1.PermissionService.UpdateBody:
     type: object
     properties:
       name:
         type: string
+        title: name 是新的权限显示名称。
+    title: UpdatePermissionReq 是权限更新请求。
   app.v1.Role:
     type: object
     properties:
       id:
         type: string
+        title: id 是角色标识。
       code:
         type: string
+        title: code 是角色的唯一编码。
       name:
         type: string
+        title: name 是角色显示名称。
       permissionIds:
         type: array
         items:
           type: string
+        title: permission_ids 是角色关联的权限标识集合。
       metadata:
         $ref: '#/definitions/server.common.Metadata'
+        title: metadata 是角色的审计信息。
+    title: Role 表示一组可分配给用户的权限。
   app.v1.RoleService.SetPermissionsBody:
     type: object
     properties:
@@ -455,30 +527,42 @@ definitions:
         type: array
         items:
           type: string
+        title: permission_ids 是替换后的权限标识集合。
+    title: SetRolePermissionsReq 是角色权限替换请求。
   app.v1.RoleService.UpdateBody:
     type: object
     properties:
       name:
         type: string
+        title: name 是新的角色显示名称。
+    title: UpdateRoleReq 是角色更新请求。
   app.v1.User:
     type: object
     properties:
       id:
         type: string
+        title: id 是用户标识。
       username:
         type: string
+        title: username 是唯一登录用户名。
       email:
         type: string
+        title: email 是唯一联系邮箱。
       enabled:
         type: boolean
+        title: enabled 表示用户是否允许登录和访问接口。
       avatarFileId:
         type: string
+        title: avatar_file_id 是当前头像文件标识，未设置时为空。
       roleIds:
         type: array
         items:
           type: string
+        title: role_ids 是用户关联的角色标识集合。
       metadata:
         $ref: '#/definitions/server.common.Metadata'
+        title: metadata 是用户的审计信息。
+    title: User 表示可登录并被授予角色的用户。
   app.v1.UserService.SetRolesBody:
     type: object
     properties:
@@ -486,13 +570,18 @@ definitions:
         type: array
         items:
           type: string
+        title: role_ids 是替换后的角色标识集合。
+    title: SetUserRolesReq 是用户角色替换请求。
   app.v1.UserService.UpdateBody:
     type: object
     properties:
       email:
         type: string
+        title: email 是新的唯一联系邮箱。
       enabled:
         type: boolean
+        title: enabled 表示更新后是否允许用户登录和访问接口。
+    title: UpdateUserReq 是用户更新请求。
   server.common.Empty:
     type: object
     title: 空消息，用于不需要请求参数或响应数据的 RPC

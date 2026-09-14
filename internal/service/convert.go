@@ -1,8 +1,6 @@
 package service
 
 import (
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	servercommon "github.com/go-sdk/server/common"
 
 	appv1 "github.com/go-sdk/example/gen/app/v1"
@@ -19,11 +17,17 @@ func userToProto(value model.User) *appv1.User {
 		avatarID = *value.AvatarFileID
 	}
 	return &appv1.User{
-		Id: value.Id, Username: value.Username, Email: value.Email, Enabled: value.Enabled,
-		AvatarFileId: avatarID, RoleIds: roles,
+		Id:           value.Id,
+		Username:     value.Username,
+		Email:        value.Email,
+		Enabled:      value.Enabled,
+		AvatarFileId: avatarID,
+		RoleIds:      roles,
 		Metadata: &servercommon.Metadata{
-			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
-			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
+			CreatedBy: value.CreatedBy,
+			CreatedAt: servercommon.NewTimestamp(value.CreatedAt),
+			UpdatedBy: value.UpdatedBy,
+			UpdatedAt: servercommon.NewTimestamp(value.UpdatedAt),
 		},
 	}
 }
@@ -34,20 +38,29 @@ func roleToProto(value model.Role) *appv1.Role {
 		permissions = append(permissions, permission.Id)
 	}
 	return &appv1.Role{
-		Id: value.Id, Code: value.Code, Name: value.Name, PermissionIds: permissions,
+		Id:            value.Id,
+		Code:          value.Code,
+		Name:          value.Name,
+		PermissionIds: permissions,
 		Metadata: &servercommon.Metadata{
-			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
-			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
+			CreatedBy: value.CreatedBy,
+			CreatedAt: servercommon.NewTimestamp(value.CreatedAt),
+			UpdatedBy: value.UpdatedBy,
+			UpdatedAt: servercommon.NewTimestamp(value.UpdatedAt),
 		},
 	}
 }
 
 func permissionToProto(value model.Permission) *appv1.Permission {
 	return &appv1.Permission{
-		Id: value.Id, Code: value.Code, Name: value.Name,
+		Id:   value.Id,
+		Code: value.Code,
+		Name: value.Name,
 		Metadata: &servercommon.Metadata{
-			CreatedBy: value.CreatedBy, CreatedAt: timestamppb.New(value.CreatedAt),
-			UpdatedBy: value.UpdatedBy, UpdatedAt: timestamppb.New(value.UpdatedAt),
+			CreatedBy: value.CreatedBy,
+			CreatedAt: servercommon.NewTimestamp(value.CreatedAt),
+			UpdatedBy: value.UpdatedBy,
+			UpdatedAt: servercommon.NewTimestamp(value.UpdatedAt),
 		},
 	}
 }

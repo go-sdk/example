@@ -7,7 +7,9 @@ import "google/api/annotations.proto";
 import "options/options.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+// AuthService 提供用户身份认证能力。
 service AuthService {
+  // Login 校验用户名和密码并签发访问令牌。
   rpc Login(LoginReq) returns (LoginResp) {
     option (google.api.http) = {
       post: "/api/v1/auth/login"
@@ -24,11 +26,14 @@ service AuthService {
   }
 }
 
+// LoginReq 是用户登录请求。
 message LoginReq {
+  // username 是登录用户名。
   string username = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
+  // password 是登录密码。
   string password = 2 [
     (buf.validate.field).string = {
       min_len: 8
@@ -38,7 +43,10 @@ message LoginReq {
   ];
 }
 
+// LoginResp 是登录成功后的令牌信息。
 message LoginResp {
+  // access_token 是后续请求使用的 Bearer JWT。
   string access_token = 1 [(server.options.field).sensitive = true];
+  // expires_at 是令牌失效时间的 Unix 秒时间戳。
   int64 expires_at = 2;
 }

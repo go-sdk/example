@@ -25,7 +25,10 @@ const (
 // AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// AuthService 提供用户身份认证能力。
 type AuthServiceClient interface {
+	// Login 校验用户名和密码并签发访问令牌。
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 }
 
@@ -50,7 +53,10 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginReq, opts ...grp
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
+//
+// AuthService 提供用户身份认证能力。
 type AuthServiceServer interface {
+	// Login 校验用户名和密码并签发访问令牌。
 	Login(context.Context, *LoginReq) (*LoginResp, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }

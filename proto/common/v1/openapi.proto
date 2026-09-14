@@ -4,11 +4,12 @@ package common.v1;
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+// 全局 OpenAPI 配置描述统一响应结构和 Bearer JWT 安全方案。
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "Go SDK Example API"
     version: "1.0.0"
-    description: "基于 go-sdk/core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。"
+    description: "基于 go-sdk/app 整合 core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。"
   }
   consumes: "application/json"
   produces: "application/json"

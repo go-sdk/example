@@ -25,15 +25,23 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// User 表示可登录并被授予角色的用户。
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	AvatarFileId  string                 `protobuf:"bytes,5,opt,name=avatar_file_id,json=avatarFileId,proto3" json:"avatar_file_id,omitempty"`
-	RoleIds       []string               `protobuf:"bytes,6,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
-	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是用户标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// username 是唯一登录用户名。
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	// email 是唯一联系邮箱。
+	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	// enabled 表示用户是否允许登录和访问接口。
+	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// avatar_file_id 是当前头像文件标识，未设置时为空。
+	AvatarFileId string `protobuf:"bytes,5,opt,name=avatar_file_id,json=avatarFileId,proto3" json:"avatar_file_id,omitempty"`
+	// role_ids 是用户关联的角色标识集合。
+	RoleIds []string `protobuf:"bytes,6,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
+	// metadata 是用户的审计信息。
+	Metadata      *common.Metadata `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -117,12 +125,17 @@ func (x *User) GetMetadata() *common.Metadata {
 	return nil
 }
 
+// CreateUserReq 是用户创建请求。
 type CreateUserReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// username 是唯一登录用户名。
+	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	// email 是唯一联系邮箱。
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// password 是用户的初始登录密码。
+	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	// enabled 表示创建后是否允许用户登录和访问接口。
+	Enabled       bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -185,9 +198,11 @@ func (x *CreateUserReq) GetEnabled() bool {
 	return false
 }
 
+// GetUserReq 是用户查询请求。
 type GetUserReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待查询的用户标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -229,9 +244,11 @@ func (x *GetUserReq) GetId() string {
 	return ""
 }
 
+// ListUserReq 是用户分页查询请求。
 type ListUserReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// paging 指定页码和每页数量。
+	Paging        *common.Paging `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,10 +290,13 @@ func (x *ListUserReq) GetPaging() *common.Paging {
 	return nil
 }
 
+// ListUserResp 是用户分页查询结果。
 type ListUserResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Records       []*User                `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// records 是当前页用户记录。
+	Records []*User `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
+	// paging 包含规范化分页参数和总记录数。
+	Paging        *common.Paging `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -325,11 +345,15 @@ func (x *ListUserResp) GetPaging() *common.Paging {
 	return nil
 }
 
+// UpdateUserReq 是用户更新请求。
 type UpdateUserReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待更新的用户标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// email 是新的唯一联系邮箱。
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// enabled 表示更新后是否允许用户登录和访问接口。
+	Enabled       bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -385,9 +409,11 @@ func (x *UpdateUserReq) GetEnabled() bool {
 	return false
 }
 
+// DeleteUserReq 是用户删除请求。
 type DeleteUserReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待删除的用户标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,10 +455,13 @@ func (x *DeleteUserReq) GetId() string {
 	return ""
 }
 
+// SetUserRolesReq 是用户角色替换请求。
 type SetUserRolesReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RoleIds       []string               `protobuf:"bytes,2,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待设置角色的用户标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// role_ids 是替换后的角色标识集合。
+	RoleIds       []string `protobuf:"bytes,2,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -502,10 +531,9 @@ const file_app_v1_user_proto_rawDesc = "" +
 	"\aenabled\x18\x04 \x01(\bR\aenabled\"%\n" +
 	"\n" +
 	"GetUserReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xa5\x01\n" +
-	"\vListUserReq\x12\x95\x01\n" +
-	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBf\xbaHc\xba\x01`\n" +
-	"\vuser.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"e\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"<\n" +
+	"\vListUserReq\x12-\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingR\x06paging\"e\n" +
 	"\fListUserResp\x12&\n" +
 	"\arecords\x18\x01 \x03(\v2\f.app.v1.UserR\arecords\x12-\n" +
 	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"d\n" +

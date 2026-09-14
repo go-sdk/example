@@ -1,3 +1,5 @@
+app:
+  name: go-sdk-example
 server:
   address: ":8080"
 log:
@@ -12,13 +14,8 @@ sonyflake:
   start_year: 2020
   machine_id: 56565
 database:
+  driver: postgres
   dsn: ""
-  host: ""
-  port: 5432
-  name: ""
-  user: ""
-  password: ""
-  ssl_mode: disable
   pool:
     max_idle_conns: 10
     max_open_conns: 100

@@ -25,13 +25,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Role 表示一组可分配给用户的权限。
 type Role struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	PermissionIds []string               `protobuf:"bytes,4,rep,name=permission_ids,json=permissionIds,proto3" json:"permission_ids,omitempty"`
-	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是角色标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// code 是角色的唯一编码。
+	Code string `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	// name 是角色显示名称。
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// permission_ids 是角色关联的权限标识集合。
+	PermissionIds []string `protobuf:"bytes,4,rep,name=permission_ids,json=permissionIds,proto3" json:"permission_ids,omitempty"`
+	// metadata 是角色的审计信息。
+	Metadata      *common.Metadata `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,10 +107,13 @@ func (x *Role) GetMetadata() *common.Metadata {
 	return nil
 }
 
+// CreateRoleReq 是角色创建请求。
 type CreateRoleReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// code 是角色的唯一编码。
+	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	// name 是角色显示名称。
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -153,9 +162,11 @@ func (x *CreateRoleReq) GetName() string {
 	return ""
 }
 
+// GetRoleReq 是角色查询请求。
 type GetRoleReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待查询的角色标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -197,9 +208,11 @@ func (x *GetRoleReq) GetId() string {
 	return ""
 }
 
+// ListRoleReq 是角色分页查询请求。
 type ListRoleReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// paging 指定页码和每页数量。
+	Paging        *common.Paging `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -241,10 +254,13 @@ func (x *ListRoleReq) GetPaging() *common.Paging {
 	return nil
 }
 
+// ListRoleResp 是角色分页查询结果。
 type ListRoleResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Records       []*Role                `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// records 是当前页角色记录。
+	Records []*Role `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
+	// paging 包含规范化分页参数和总记录数。
+	Paging        *common.Paging `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,10 +309,13 @@ func (x *ListRoleResp) GetPaging() *common.Paging {
 	return nil
 }
 
+// UpdateRoleReq 是角色更新请求。
 type UpdateRoleReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待更新的角色标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name 是新的角色显示名称。
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -345,9 +364,11 @@ func (x *UpdateRoleReq) GetName() string {
 	return ""
 }
 
+// DeleteRoleReq 是角色删除请求。
 type DeleteRoleReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待删除的角色标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -389,10 +410,13 @@ func (x *DeleteRoleReq) GetId() string {
 	return ""
 }
 
+// SetRolePermissionsReq 是角色权限替换请求。
 type SetRolePermissionsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	PermissionIds []string               `protobuf:"bytes,2,rep,name=permission_ids,json=permissionIds,proto3" json:"permission_ids,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待设置权限的角色标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// permission_ids 是替换后的权限标识集合。
+	PermissionIds []string `protobuf:"bytes,2,rep,name=permission_ids,json=permissionIds,proto3" json:"permission_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -458,10 +482,9 @@ const file_app_v1_role_proto_rawDesc = "" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"%\n" +
 	"\n" +
 	"GetRoleReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xa5\x01\n" +
-	"\vListRoleReq\x12\x95\x01\n" +
-	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBf\xbaHc\xba\x01`\n" +
-	"\vrole.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"e\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"<\n" +
+	"\vListRoleReq\x12-\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingR\x06paging\"e\n" +
 	"\fListRoleResp\x12&\n" +
 	"\arecords\x18\x01 \x03(\v2\f.app.v1.RoleR\arecords\x12-\n" +
 	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"H\n" +

@@ -7,7 +7,9 @@ import "common/common.proto";
 import "google/api/annotations.proto";
 import "options/options.proto";
 
+// PermissionService 提供权限资源管理能力。
 service PermissionService {
+  // Create 创建权限。
   rpc Create(CreatePermissionReq) returns (Permission) {
     option (google.api.http) = {
       post: "/api/v1/permissions"
@@ -15,14 +17,17 @@ service PermissionService {
     };
     option (server.options.method).permissions = "permissions.write";
   }
+  // Get 按标识查询权限。
   rpc Get(GetPermissionReq) returns (Permission) {
     option (google.api.http) = {get: "/api/v1/permissions/{id}"};
     option (server.options.method).permissions = "permissions.read";
   }
+  // List 分页查询权限。
   rpc List(ListPermissionReq) returns (ListPermissionResp) {
     option (google.api.http) = {get: "/api/v1/permissions"};
     option (server.options.method).permissions = "permissions.read";
   }
+  // Update 更新权限名称。
   rpc Update(UpdatePermissionReq) returns (Permission) {
     option (google.api.http) = {
       put: "/api/v1/permissions/{id}"
@@ -30,46 +35,66 @@ service PermissionService {
     };
     option (server.options.method).permissions = "permissions.write";
   }
+  // Delete 删除非内置权限。
   rpc Delete(DeletePermissionReq) returns (server.common.Empty) {
     option (google.api.http) = {delete: "/api/v1/permissions/{id}"};
     option (server.options.method).permissions = "permissions.write";
   }
 }
 
+// Permission 表示可分配给角色的权限。
 message Permission {
+  // id 是权限标识。
   string id = 1;
+  // code 是权限检查使用的唯一编码。
   string code = 2;
+  // name 是权限显示名称。
   string name = 3;
+  // metadata 是权限的审计信息。
   server.common.Metadata metadata = 15;
 }
+
+// CreatePermissionReq 是创建权限请求。
 message CreatePermissionReq {
+  // code 是权限检查使用的唯一编码。
   string code = 1 [(buf.validate.field).string = {pattern: "^[a-z][a-z0-9_.]{1,127}$"}];
+  // name 是权限显示名称。
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
 }
+// GetPermissionReq 是权限查询请求。
 message GetPermissionReq {
+  // id 是待查询的权限标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
+
+// ListPermissionReq 是权限分页查询请求。
 message ListPermissionReq {
-  server.common.Paging paging = 1 [(buf.validate.field).cel = {
-    id: "permission.paging"
-    message: "paging is invalid"
-    expression: "this.page >= 0 && this.page_size >= 0 && this.page_size <= 100"
-  }];
+  // paging 指定页码和每页数量。
+  server.common.Paging paging = 1;
 }
+// ListPermissionResp 是权限分页查询结果。
 message ListPermissionResp {
+  // records 是当前页权限记录。
   repeated Permission records = 1;
+  // paging 包含规范化分页参数和总记录数。
   server.common.Paging paging = 2;
 }
+
+// UpdatePermissionReq 是权限更新请求。
 message UpdatePermissionReq {
+  // id 是待更新的权限标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
+  // name 是新的权限显示名称。
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
 }
+// DeletePermissionReq 是权限删除请求。
 message DeletePermissionReq {
+  // id 是待删除的权限标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }

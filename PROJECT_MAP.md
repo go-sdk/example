@@ -4,15 +4,15 @@
 
 ```text
 example/
-├── cmd/app/main.go                    命令入口、依赖装配和生命周期
+├── cmd/app/main.go                    数据库驱动与业务注册包导入、app.Main 入口
 ├── gen/                               Protobuf、gRPC 与 Gateway 生成代码
 ├── internal/auth/                     JWT 签发和 RBAC 权限拦截器
-├── internal/config/                   配置加载与启动参数校验
+├── internal/config/                   全局配置的业务字段访问与校验
 ├── internal/i18n/                     业务错误的嵌入式翻译资源
 ├── internal/migration/                数据表迁移、内置权限和管理员初始化
-├── internal/model/                    用户、角色、权限、关联表和文件模型
-├── internal/service/                  Proto 服务实现
-├── internal/transport/http/           上传、下载和头像替换接口
+├── internal/model/                    每个 Model 的定义及数据库操作
+├── internal/route/                    上传、下载和头像替换 HTTP 接口
+├── internal/service/                  Proto Service 实现及服务注册
 ├── openapi/openapi.swagger.yaml       生成的 HTTP API 文档
 ├── proto/app/v1/                      业务服务和消息定义
 ├── proto/common/v1/                   应用错误码和 OpenAPI 公共定义
@@ -28,16 +28,13 @@ Proto 直接通过 `buf.build/go-sdk/server` 引用 `server.common` 公共类型
 ## 启动链路
 
 ```text
-cmd/app serve
-  -> core/config 在进程初始化期从 CONFIG_PATH 和 APP__ 加载统一配置
-  -> 应用校验配置并安装默认实例，core/logx 按 log.* 重新初始化
-  -> database/dbx.Open 按 database.* 连接池配置打开 PostgreSQL 并注册关闭函数
-  -> database/migrate 从迁移文件名注册带 advisory lock 的迁移初始化函数
-  -> 初始化内置权限、admin 角色和首次管理员
-  -> server/standard.New 注册 gRPC、Gateway、JWT、RBAC、错误转换和 i18n
-  -> 注册使用 standard.Context 的额外文件 HTTP 路由
-  -> core/lifex.Init 按顺序执行迁移、初始化和 Server.Start
-  -> core/lifex.Wait 处理信号并逆序释放 Server 和数据库
+cmd/app
+  -> 导入 migration、route 和 service，包初始化只向 app 登记声明
+  -> app.Main 从 core/config 的默认实例读取 CONFIG_PATH 和 APP__ 配置
+  -> app.Run 初始化日志和 database/dbx.DB
+  -> app.Run 依次执行文件迁移、内置数据 Bootstrap 和存储目录 Bootstrap
+  -> app.Run 创建 server/standard，装配 gRPC、Gateway、JWT、RBAC、错误转换和 i18n
+  -> app.Run 启动 Server，并通过 core/lifex 逆序停止 Server、关闭数据库和日志
 ```
 
 ## 请求链路
@@ -50,7 +47,7 @@ HTTP /api/v1/*
   -> server 请求上下文、日志、JWT、Protovalidate
   -> 应用 RBAC interceptor 查询 user_roles 和 role_permissions
   -> internal/service
-  -> GORM with context
+  -> internal/model 使用 app.DB().WithContext(ctx)
   -> database logger 继承 trace-id、span-id 和 depth
 ```
 
@@ -62,7 +59,7 @@ HTTP /api/v1/*
 ```text
 HandlePath
   -> server HTTP 请求上下文、JWT、访问日志和 Recovery
-  -> FileHandler 显式检查 files.read、files.write 或 users.write
+  -> internal/route 显式检查 files.read、files.write 或 users.write
   -> standard.Context 限制并解析 multipart，文件系统保存随机文件名
   -> files 表保存元数据
 ```

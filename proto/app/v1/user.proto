@@ -7,7 +7,9 @@ import "common/common.proto";
 import "google/api/annotations.proto";
 import "options/options.proto";
 
+// UserService 提供用户及其角色关系的管理能力。
 service UserService {
+  // Create 创建用户。
   rpc Create(CreateUserReq) returns (User) {
     option (google.api.http) = {
       post: "/api/v1/users"
@@ -15,14 +17,17 @@ service UserService {
     };
     option (server.options.method).permissions = "users.write";
   }
+  // Get 按标识查询用户。
   rpc Get(GetUserReq) returns (User) {
     option (google.api.http) = {get: "/api/v1/users/{id}"};
     option (server.options.method).permissions = "users.read";
   }
+  // List 分页查询用户。
   rpc List(ListUserReq) returns (ListUserResp) {
     option (google.api.http) = {get: "/api/v1/users"};
     option (server.options.method).permissions = "users.read";
   }
+  // Update 更新用户邮箱和启用状态。
   rpc Update(UpdateUserReq) returns (User) {
     option (google.api.http) = {
       put: "/api/v1/users/{id}"
@@ -30,10 +35,12 @@ service UserService {
     };
     option (server.options.method).permissions = "users.write";
   }
+  // Delete 删除非当前登录用户。
   rpc Delete(DeleteUserReq) returns (server.common.Empty) {
     option (google.api.http) = {delete: "/api/v1/users/{id}"};
     option (server.options.method).permissions = "users.write";
   }
+  // SetRoles 替换用户关联的角色集合。
   rpc SetRoles(SetUserRolesReq) returns (server.common.Empty) {
     option (google.api.http) = {
       put: "/api/v1/users/{id}/roles"
@@ -43,25 +50,37 @@ service UserService {
   }
 }
 
+// User 表示可登录并被授予角色的用户。
 message User {
+  // id 是用户标识。
   string id = 1;
+  // username 是唯一登录用户名。
   string username = 2;
+  // email 是唯一联系邮箱。
   string email = 3;
+  // enabled 表示用户是否允许登录和访问接口。
   bool enabled = 4;
+  // avatar_file_id 是当前头像文件标识，未设置时为空。
   string avatar_file_id = 5;
+  // role_ids 是用户关联的角色标识集合。
   repeated string role_ids = 6;
+  // metadata 是用户的审计信息。
   server.common.Metadata metadata = 15;
 }
 
+// CreateUserReq 是用户创建请求。
 message CreateUserReq {
+  // username 是唯一登录用户名。
   string username = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
+  // email 是唯一联系邮箱。
   string email = 2 [(buf.validate.field).string = {
     email: true
     max_len: 255
   }];
+  // password 是用户的初始登录密码。
   string password = 3 [
     (buf.validate.field).string = {
       min_len: 8
@@ -69,40 +88,53 @@ message CreateUserReq {
     },
     (server.options.field).sensitive = true
   ];
+  // enabled 表示创建后是否允许用户登录和访问接口。
   bool enabled = 4;
 }
 
+// GetUserReq 是用户查询请求。
 message GetUserReq {
+  // id 是待查询的用户标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
+// ListUserReq 是用户分页查询请求。
 message ListUserReq {
-  server.common.Paging paging = 1 [(buf.validate.field).cel = {
-    id: "user.paging"
-    message: "paging is invalid"
-    expression: "this.page >= 0 && this.page_size >= 0 && this.page_size <= 100"
-  }];
+  // paging 指定页码和每页数量。
+  server.common.Paging paging = 1;
 }
 
+// ListUserResp 是用户分页查询结果。
 message ListUserResp {
+  // records 是当前页用户记录。
   repeated User records = 1;
+  // paging 包含规范化分页参数和总记录数。
   server.common.Paging paging = 2;
 }
 
+// UpdateUserReq 是用户更新请求。
 message UpdateUserReq {
+  // id 是待更新的用户标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
+  // email 是新的唯一联系邮箱。
   string email = 2 [(buf.validate.field).string = {
     email: true
     max_len: 255
   }];
+  // enabled 表示更新后是否允许用户登录和访问接口。
   bool enabled = 3;
 }
 
+// DeleteUserReq 是用户删除请求。
 message DeleteUserReq {
+  // id 是待删除的用户标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
+// SetUserRolesReq 是用户角色替换请求。
 message SetUserRolesReq {
+  // id 是待设置角色的用户标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
+  // role_ids 是替换后的角色标识集合。
   repeated string role_ids = 2 [(buf.validate.field).repeated.items.string.min_len = 1];
 }

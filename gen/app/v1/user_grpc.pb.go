@@ -31,12 +31,20 @@ const (
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// UserService 提供用户及其角色关系的管理能力。
 type UserServiceClient interface {
+	// Create 创建用户。
 	Create(ctx context.Context, in *CreateUserReq, opts ...grpc.CallOption) (*User, error)
+	// Get 按标识查询用户。
 	Get(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*User, error)
+	// List 分页查询用户。
 	List(ctx context.Context, in *ListUserReq, opts ...grpc.CallOption) (*ListUserResp, error)
+	// Update 更新用户邮箱和启用状态。
 	Update(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*User, error)
+	// Delete 删除非当前登录用户。
 	Delete(ctx context.Context, in *DeleteUserReq, opts ...grpc.CallOption) (*common.Empty, error)
+	// SetRoles 替换用户关联的角色集合。
 	SetRoles(ctx context.Context, in *SetUserRolesReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
@@ -111,12 +119,20 @@ func (c *userServiceClient) SetRoles(ctx context.Context, in *SetUserRolesReq, o
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
+//
+// UserService 提供用户及其角色关系的管理能力。
 type UserServiceServer interface {
+	// Create 创建用户。
 	Create(context.Context, *CreateUserReq) (*User, error)
+	// Get 按标识查询用户。
 	Get(context.Context, *GetUserReq) (*User, error)
+	// List 分页查询用户。
 	List(context.Context, *ListUserReq) (*ListUserResp, error)
+	// Update 更新用户邮箱和启用状态。
 	Update(context.Context, *UpdateUserReq) (*User, error)
+	// Delete 删除非当前登录用户。
 	Delete(context.Context, *DeleteUserReq) (*common.Empty, error)
+	// SetRoles 替换用户关联的角色集合。
 	SetRoles(context.Context, *SetUserRolesReq) (*common.Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }

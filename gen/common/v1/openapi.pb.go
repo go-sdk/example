@@ -25,8 +25,8 @@ var File_common_v1_openapi_proto protoreflect.FileDescriptor
 
 const file_common_v1_openapi_proto_rawDesc = "" +
 	"\n" +
-	"\x17common/v1/openapi.proto\x12\tcommon.v1\x1a.protoc-gen-openapiv2/options/annotations.protoB\xd8\x04\x92A\xc0\x03\x12\x96\x02\n" +
-	"\x12Go SDK Example API\x12\xf8\x01基于 go-sdk/core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。2\x051.0.02\x10application/json:\x10application/jsonZp\n" +
+	"\x17common/v1/openapi.proto\x12\tcommon.v1\x1a.protoc-gen-openapiv2/options/annotations.protoB\xe3\x04\x92A\xcb\x03\x12\xa1\x02\n" +
+	"\x12Go SDK Example API\x12\x83\x02基于 go-sdk/app 整合 core、database 和 server 的简易 RBAC 应用模板。成功响应统一将消息包装在 data 字段下，200 响应 schema 描述 data 字段内的消息结构；失败响应包含 code、message、domain、reason 和 details。2\x051.0.02\x10application/json:\x10application/jsonZp\n" +
 	"n\n" +
 	"\tBearerJWT\x12a\b\x02\x12L全局 JWT 鉴权；标注 skip_auth 的接口（如登录）无需携带。\x1a\rAuthorization \x02b\x0f\n" +
 	"\r\n" +

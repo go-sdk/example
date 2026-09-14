@@ -1,7 +1,8 @@
 package migration
 
 import (
-	"gorm.io/gorm"
+	"github.com/go-sdk/app"
+	"github.com/go-sdk/database/dbx"
 
 	"github.com/go-sdk/example/internal/model"
 )
@@ -16,8 +17,8 @@ var rbacReverseIndexes = []struct {
 }
 
 func init() {
-	migrations.Add(
-		func(tx *gorm.DB) error {
+	app.RegisterMigration(
+		func(tx *dbx.DB) error {
 			migrator := tx.Migrator()
 			for _, index := range rbacReverseIndexes {
 				if migrator.HasIndex(index.value, index.name) {
@@ -29,7 +30,7 @@ func init() {
 			}
 			return nil
 		},
-		func(tx *gorm.DB) error {
+		func(tx *dbx.DB) error {
 			migrator := tx.Migrator()
 			for _, index := range rbacReverseIndexes {
 				if !migrator.HasIndex(index.value, index.name) {

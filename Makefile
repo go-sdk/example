@@ -63,7 +63,7 @@ build:					##@ Build cmd/app into bin.
 
 .PHONY: run
 run: build				##@ Run app.
-	@CONFIG_PATH=config.yaml $(BIN_DIR)/app $(ARGS)
+	@CONFIG_PATH=config.yaml $(BIN_DIR)/app
 
 
 .PHONY: help

@@ -2,7 +2,7 @@
 
 ## 项目定位
 
-本仓库是 `go-sdk/core`、`go-sdk/database` 和 `go-sdk/server` 的简易应用模板，提供
+本仓库是 `go-sdk/app` 以及其整合的 `core`、`database` 和 `server` 的简易应用模板，提供
 Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头像替换 HTTP 接口。
 
 ## 修改前检查
@@ -20,14 +20,17 @@ Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头�
 - 普通业务接口以 `proto/` 为唯一协议来源，通过 gRPC Gateway 暴露 HTTP API。
 - 标识、元数据和分页统一复用 `server.common`，应用只维护自身的业务消息和错误码。
 - 只有 multipart 上传、文件下载等不适合 Proto JSON 映射的接口使用
-  `standard.Server.HandlePath`。
+  `app.RegisterRoute`，实现统一放在 `internal/route`。
 - 新增受保护的 RPC 必须声明 `(server.options.method).permissions`；匿名 RPC 必须显式声明
   `skip_auth`。
 - 密码、Token 等敏感字段必须使用 `(server.options.field).sensitive` 或为整个方法设置
   `skip_log`，不得写入日志。
-- `dbx.Open` 不隐式迁移；迁移统一放在 `internal/migration`，ID 遵循
+- 应用入口只负责导入业务注册包、所需数据库驱动并调用 `app.Main`。
+- 迁移统一放在 `internal/migration`，通过 `app.RegisterMigration` 登记，ID 遵循
   `YYYYMMDD_HHMMSS_NN_description`。
-- 每个迁移文件直接调用一次 `Migrations.Add`，已发布迁移文件不得重命名。
+- 业务代码统一使用 `dbx.DB`、`dbx.OnConflict` 和 `dbx.Is*`，不直接导入 GORM。
+- 每个迁移文件直接调用一次 `app.RegisterMigration`，已发布迁移文件不得重命名。
+- 每个 Model 独立一个文件，数据库查询和写入封装在 `internal/model`，Service 只实现业务接口。
 - 模型主键使用 `core/seq` 生成，并复用 `dbx.Metadata` 的审计字段和软删除行为。
 - 文件只在配置的存储根目录内按随机名称保存，数据库不保存文件内容或绝对路径。
 - 业务错误使用 Proto 枚举定义稳定错误码，并通过 `standard.Err*` 和嵌入式 TOML 文案返回。

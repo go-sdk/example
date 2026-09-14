@@ -15,4 +15,3 @@ RUN mkdir -p /app/data && chown -R app:app /app
 USER app
 EXPOSE 8080
 ENTRYPOINT ["app"]
-CMD ["serve"]

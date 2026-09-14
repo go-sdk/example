@@ -31,12 +31,20 @@ const (
 // RoleServiceClient is the client API for RoleService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// RoleService 提供角色及其权限关系的管理能力。
 type RoleServiceClient interface {
+	// Create 创建角色。
 	Create(ctx context.Context, in *CreateRoleReq, opts ...grpc.CallOption) (*Role, error)
+	// Get 按标识查询角色。
 	Get(ctx context.Context, in *GetRoleReq, opts ...grpc.CallOption) (*Role, error)
+	// List 分页查询角色。
 	List(ctx context.Context, in *ListRoleReq, opts ...grpc.CallOption) (*ListRoleResp, error)
+	// Update 更新角色名称。
 	Update(ctx context.Context, in *UpdateRoleReq, opts ...grpc.CallOption) (*Role, error)
+	// Delete 删除非管理员角色。
 	Delete(ctx context.Context, in *DeleteRoleReq, opts ...grpc.CallOption) (*common.Empty, error)
+	// SetPermissions 替换角色关联的权限集合。
 	SetPermissions(ctx context.Context, in *SetRolePermissionsReq, opts ...grpc.CallOption) (*common.Empty, error)
 }
 
@@ -111,12 +119,20 @@ func (c *roleServiceClient) SetPermissions(ctx context.Context, in *SetRolePermi
 // RoleServiceServer is the server API for RoleService service.
 // All implementations must embed UnimplementedRoleServiceServer
 // for forward compatibility.
+//
+// RoleService 提供角色及其权限关系的管理能力。
 type RoleServiceServer interface {
+	// Create 创建角色。
 	Create(context.Context, *CreateRoleReq) (*Role, error)
+	// Get 按标识查询角色。
 	Get(context.Context, *GetRoleReq) (*Role, error)
+	// List 分页查询角色。
 	List(context.Context, *ListRoleReq) (*ListRoleResp, error)
+	// Update 更新角色名称。
 	Update(context.Context, *UpdateRoleReq) (*Role, error)
+	// Delete 删除非管理员角色。
 	Delete(context.Context, *DeleteRoleReq) (*common.Empty, error)
+	// SetPermissions 替换角色关联的权限集合。
 	SetPermissions(context.Context, *SetRolePermissionsReq) (*common.Empty, error)
 	mustEmbedUnimplementedRoleServiceServer()
 }

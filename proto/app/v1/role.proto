@@ -7,7 +7,9 @@ import "common/common.proto";
 import "google/api/annotations.proto";
 import "options/options.proto";
 
+// RoleService 提供角色及其权限关系的管理能力。
 service RoleService {
+  // Create 创建角色。
   rpc Create(CreateRoleReq) returns (Role) {
     option (google.api.http) = {
       post: "/api/v1/roles"
@@ -15,14 +17,17 @@ service RoleService {
     };
     option (server.options.method).permissions = "roles.write";
   }
+  // Get 按标识查询角色。
   rpc Get(GetRoleReq) returns (Role) {
     option (google.api.http) = {get: "/api/v1/roles/{id}"};
     option (server.options.method).permissions = "roles.read";
   }
+  // List 分页查询角色。
   rpc List(ListRoleReq) returns (ListRoleResp) {
     option (google.api.http) = {get: "/api/v1/roles"};
     option (server.options.method).permissions = "roles.read";
   }
+  // Update 更新角色名称。
   rpc Update(UpdateRoleReq) returns (Role) {
     option (google.api.http) = {
       put: "/api/v1/roles/{id}"
@@ -30,10 +35,12 @@ service RoleService {
     };
     option (server.options.method).permissions = "roles.write";
   }
+  // Delete 删除非管理员角色。
   rpc Delete(DeleteRoleReq) returns (server.common.Empty) {
     option (google.api.http) = {delete: "/api/v1/roles/{id}"};
     option (server.options.method).permissions = "roles.write";
   }
+  // SetPermissions 替换角色关联的权限集合。
   rpc SetPermissions(SetRolePermissionsReq) returns (server.common.Empty) {
     option (google.api.http) = {
       put: "/api/v1/roles/{id}/permissions"
@@ -43,46 +50,69 @@ service RoleService {
   }
 }
 
+// Role 表示一组可分配给用户的权限。
 message Role {
+  // id 是角色标识。
   string id = 1;
+  // code 是角色的唯一编码。
   string code = 2;
+  // name 是角色显示名称。
   string name = 3;
+  // permission_ids 是角色关联的权限标识集合。
   repeated string permission_ids = 4;
+  // metadata 是角色的审计信息。
   server.common.Metadata metadata = 15;
 }
 
+// CreateRoleReq 是角色创建请求。
 message CreateRoleReq {
+  // code 是角色的唯一编码。
   string code = 1 [(buf.validate.field).string = {pattern: "^[a-z][a-z0-9_]{1,63}$"}];
+  // name 是角色显示名称。
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
 }
+// GetRoleReq 是角色查询请求。
 message GetRoleReq {
+  // id 是待查询的角色标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
+
+// ListRoleReq 是角色分页查询请求。
 message ListRoleReq {
-  server.common.Paging paging = 1 [(buf.validate.field).cel = {
-    id: "role.paging"
-    message: "paging is invalid"
-    expression: "this.page >= 0 && this.page_size >= 0 && this.page_size <= 100"
-  }];
+  // paging 指定页码和每页数量。
+  server.common.Paging paging = 1;
 }
+// ListRoleResp 是角色分页查询结果。
 message ListRoleResp {
+  // records 是当前页角色记录。
   repeated Role records = 1;
+  // paging 包含规范化分页参数和总记录数。
   server.common.Paging paging = 2;
 }
+
+// UpdateRoleReq 是角色更新请求。
 message UpdateRoleReq {
+  // id 是待更新的角色标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
+  // name 是新的角色显示名称。
   string name = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
 }
+// DeleteRoleReq 是角色删除请求。
 message DeleteRoleReq {
+  // id 是待删除的角色标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
+
+// SetRolePermissionsReq 是角色权限替换请求。
 message SetRolePermissionsReq {
+  // id 是待设置权限的角色标识。
   string id = 1 [(buf.validate.field).string.min_len = 1];
+  // permission_ids 是替换后的权限标识集合。
   repeated string permission_ids = 2 [(buf.validate.field).repeated.items.string.min_len = 1];
 }

@@ -25,12 +25,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Permission 表示可分配给角色的权限。
 type Permission struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Metadata      *common.Metadata       `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是权限标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// code 是权限检查使用的唯一编码。
+	Code string `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	// name 是权限显示名称。
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// metadata 是权限的审计信息。
+	Metadata      *common.Metadata `protobuf:"bytes,15,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -93,10 +98,13 @@ func (x *Permission) GetMetadata() *common.Metadata {
 	return nil
 }
 
+// CreatePermissionReq 是创建权限请求。
 type CreatePermissionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// code 是权限检查使用的唯一编码。
+	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	// name 是权限显示名称。
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -145,9 +153,11 @@ func (x *CreatePermissionReq) GetName() string {
 	return ""
 }
 
+// GetPermissionReq 是权限查询请求。
 type GetPermissionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待查询的权限标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -189,9 +199,11 @@ func (x *GetPermissionReq) GetId() string {
 	return ""
 }
 
+// ListPermissionReq 是权限分页查询请求。
 type ListPermissionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Paging        *common.Paging         `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// paging 指定页码和每页数量。
+	Paging        *common.Paging `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -233,10 +245,13 @@ func (x *ListPermissionReq) GetPaging() *common.Paging {
 	return nil
 }
 
+// ListPermissionResp 是权限分页查询结果。
 type ListPermissionResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Records       []*Permission          `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
-	Paging        *common.Paging         `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// records 是当前页权限记录。
+	Records []*Permission `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
+	// paging 包含规范化分页参数和总记录数。
+	Paging        *common.Paging `protobuf:"bytes,2,opt,name=paging,proto3" json:"paging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,10 +300,13 @@ func (x *ListPermissionResp) GetPaging() *common.Paging {
 	return nil
 }
 
+// UpdatePermissionReq 是权限更新请求。
 type UpdatePermissionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待更新的权限标识。
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// name 是新的权限显示名称。
+	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -337,9 +355,11 @@ func (x *UpdatePermissionReq) GetName() string {
 	return ""
 }
 
+// DeletePermissionReq 是权限删除请求。
 type DeletePermissionReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// id 是待删除的权限标识。
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -397,10 +417,9 @@ const file_app_v1_permission_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x01\x18\x80\x01R\x04name\"+\n" +
 	"\x10GetPermissionReq\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\xb1\x01\n" +
-	"\x11ListPermissionReq\x12\x9b\x01\n" +
-	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingBl\xbaHi\xba\x01f\n" +
-	"\x11permission.paging\x12\x11paging is invalid\x1a>this.page >= 0 && this.page_size >= 0 && this.page_size <= 100R\x06paging\"q\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"B\n" +
+	"\x11ListPermissionReq\x12-\n" +
+	"\x06paging\x18\x01 \x01(\v2\x15.server.common.PagingR\x06paging\"q\n" +
 	"\x12ListPermissionResp\x12,\n" +
 	"\arecords\x18\x01 \x03(\v2\x12.app.v1.PermissionR\arecords\x12-\n" +
 	"\x06paging\x18\x02 \x01(\v2\x15.server.common.PagingR\x06paging\"N\n" +
