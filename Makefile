@@ -14,8 +14,9 @@ PROTOC_GEN_OPENAPIV2_VERSION    ?= v2.30.0  # https://github.com/grpc-ecosystem/
 PROTOC_GEN_GO_JSON_VERSION      ?= v1.1.3   # https://github.com/protoc-contrib/protoc-gen-go-json
 
 .PHONY: tidy
-tidy:					##@ Tidy go.mod and go.sum.
+tidy:					##@ Tidy go.mod and go.sum in all modules.
 	@go mod tidy
+	@cd pb && go mod tidy
 
 .PHONY: prepare
 prepare:				##@ Install buf local plugins.
@@ -37,9 +38,13 @@ generate:				##@ Lint & Generate proto files.
 		buf generate --template "$$tmp_dir/buf.gen.yaml"; \
 		test -d "$$tmp_dir/generated/pb"; \
 		test -f "$$tmp_dir/generated/openapi/openapi.swagger.yaml"; \
+		cp pb/go.mod pb/go.sum "$$tmp_dir/"; \
 		rm -rf gen pb openapi; \
 		mv "$$tmp_dir/generated/pb" pb; \
+		mv "$$tmp_dir/go.mod" pb/go.mod; \
+		mv "$$tmp_dir/go.sum" pb/go.sum; \
 		mv "$$tmp_dir/generated/openapi" openapi; \
+		cd pb && go mod tidy; \
 		echo "done."; \
 	else \
 		echo "buf is not installed. Please install it from https://github.com/bufbuild/buf"; \
@@ -47,9 +52,10 @@ generate:				##@ Lint & Generate proto files.
 	fi
 
 .PHONY: lint
-lint: tidy				##@ Lint all packages.
+lint: tidy				##@ Lint all packages in all modules.
 	@if command -v golangci-lint >/dev/null 2>&1; then \
 		golangci-lint run --timeout 5m && \
+		(cd pb && golangci-lint run --timeout 5m) && \
 		echo "done."; \
 	else \
 		echo "golangci-lint is not installed. Please install it from https://github.com/golangci/golangci-lint"; \
@@ -57,9 +63,10 @@ lint: tidy				##@ Lint all packages.
 	fi
 
 .PHONY: build
-build:					##@ Build cmd/app into bin.
+build:					##@ Build cmd/app into bin and compile pb module.
 	@mkdir -p $(BIN_DIR)
 	@go build $(GO_LDFLAGS) -o $(BIN_DIR)/app ./cmd/app
+	@cd pb && go build ./...
 
 .PHONY: run
 run: build				##@ Run app.
