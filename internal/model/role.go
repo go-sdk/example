@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-sdk/app"
 	"github.com/go-sdk/database/dbx"
+	"github.com/samber/lo"
 )
 
 type Role struct {
@@ -59,12 +60,12 @@ func DeleteRole(ctx context.Context, value *Role) error {
 	return nil
 }
 
-func SetRolePermissions(ctx context.Context, id string, permissionIDs []string) (bool, error) {
+func SetRolePermissions(ctx context.Context, id string, permissionIds []string) (bool, error) {
 	role, err := GetRole(ctx, id)
 	if err != nil {
 		return false, err
 	}
-	ids := uniqueIDs(permissionIDs)
+	ids := lo.Uniq(permissionIds)
 	permissions, err := FindPermissions(ctx, ids)
 	if err != nil {
 		return false, err

@@ -5,13 +5,13 @@
 ```text
 example/
 ├── cmd/app/main.go                    数据库驱动与业务注册包导入、app.Main 入口
-├── gen/                               Protobuf、gRPC 与 Gateway 生成代码
+├── pb/                                Protobuf、gRPC、Gateway 与 JSON 生成代码
 ├── internal/auth/                     JWT 签发和 RBAC 权限拦截器
 ├── internal/config/                   全局配置的业务字段访问与校验
 ├── internal/i18n/                     业务错误的嵌入式翻译资源
 ├── internal/migration/                数据表迁移、内置权限和管理员初始化
 ├── internal/model/                    每个 Model 的定义及数据库操作
-├── internal/route/                    上传、下载和头像替换 HTTP 接口
+├── internal/httpapi/                  上传、下载和头像替换 HTTP 接口
 ├── internal/service/                  Proto Service 实现及服务注册
 ├── openapi/openapi.swagger.yaml       生成的 HTTP API 文档
 ├── proto/app/v1/                      业务服务和消息定义
@@ -29,7 +29,7 @@ Proto 直接通过 `buf.build/go-sdk/server` 引用 `server.common` 公共类型
 
 ```text
 cmd/app
-  -> 导入 migration、route 和 service，包初始化只向 app 登记声明
+  -> 导入 migration、httpapi 和 service，包初始化只向 app 登记声明
   -> app.Main 从 core/config 的默认实例读取 CONFIG_PATH 和 APP__ 配置
   -> app.Run 初始化日志和 database/dbx.DB
   -> app.Run 依次执行文件迁移、内置数据 Bootstrap 和存储目录 Bootstrap
@@ -47,7 +47,7 @@ HTTP /api/v1/*
   -> server 请求上下文、日志、JWT、Protovalidate
   -> 应用 RBAC interceptor 查询 user_roles 和 role_permissions
   -> internal/service
-  -> internal/model 使用 app.DB().WithContext(ctx)
+  -> internal/model 通过 app.DB() 访问当前数据库
   -> database logger 继承 trace-id、span-id 和 depth
 ```
 
@@ -59,7 +59,7 @@ HTTP /api/v1/*
 ```text
 HandlePath
   -> server HTTP 请求上下文、JWT、访问日志和 Recovery
-  -> internal/route 显式检查 files.read、files.write 或 users.write
+  -> internal/httpapi 显式检查 files.read、files.write 或 users.write
   -> standard.Context 限制并解析 multipart，文件系统保存随机文件名
   -> files 表保存元数据
 ```

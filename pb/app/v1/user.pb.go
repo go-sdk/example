@@ -555,9 +555,9 @@ const file_app_v1_user_proto_rawDesc = "" +
 	"users.read\x12_\n" +
 	"\x06Update\x12\x15.app.v1.UpdateUserReq\x1a\f.app.v1.User\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12d\n" +
 	"\x06Delete\x12\x15.app.v1.DeleteUserReq\x1a\x14.server.common.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/users/{id}ʞ\xf2\x84\x06\r\x12\vusers.write\x12q\n" +
-	"\bSetRoles\x12\x17.app.v1.SetUserRolesReq\x1a\x14.server.common.Empty\"6\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/users/{id}/rolesʞ\xf2\x84\x06\r\x12\vusers.writeB|\n" +
+	"\bSetRoles\x12\x17.app.v1.SetUserRolesReq\x1a\x14.server.common.Empty\"6\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/users/{id}/rolesʞ\xf2\x84\x06\r\x12\vusers.writeB{\n" +
 	"\n" +
-	"com.app.v1B\tUserProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
+	"com.app.v1B\tUserProtoP\x01Z)github.com/go-sdk/example/pb/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
 var (
 	file_app_v1_user_proto_rawDescOnce sync.Once

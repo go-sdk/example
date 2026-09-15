@@ -3,8 +3,8 @@ package model
 import "github.com/go-sdk/database/dbx"
 
 type RolePermission struct {
-	RoleID       string `gorm:"type:varchar(32);primaryKey"`
-	PermissionID string `gorm:"type:varchar(32);primaryKey;index:idx_role_permissions_permission_id"`
+	RoleId       string `gorm:"type:varchar(32);primaryKey"`
+	PermissionId string `gorm:"type:varchar(32);primaryKey;index:idx_role_permissions_permission_id"`
 }
 
 func EnsureRolePermissions(tx *dbx.DB, role Role, permissions []Permission) error {
@@ -13,7 +13,10 @@ func EnsureRolePermissions(tx *dbx.DB, role Role, permissions []Permission) erro
 	}
 	relations := make([]RolePermission, 0, len(permissions))
 	for _, permission := range permissions {
-		relations = append(relations, RolePermission{RoleID: role.Id, PermissionID: permission.Id})
+		relations = append(relations, RolePermission{
+			RoleId:       role.Id,
+			PermissionId: permission.Id,
+		})
 	}
 	return tx.Clauses(dbx.OnConflict{DoNothing: true}).Create(&relations).Error
 }

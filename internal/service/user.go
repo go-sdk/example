@@ -13,15 +13,22 @@ import (
 	"github.com/go-sdk/server/standard"
 	"golang.org/x/crypto/bcrypt"
 
-	appv1 "github.com/go-sdk/example/gen/app/v1"
-	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	appauth "github.com/go-sdk/example/internal/auth"
 	appconfig "github.com/go-sdk/example/internal/config"
 	"github.com/go-sdk/example/internal/model"
+	appv1 "github.com/go-sdk/example/pb/app/v1"
+	commonv1 "github.com/go-sdk/example/pb/common/v1"
 )
 
 type User struct {
 	appv1.UnimplementedUserServiceServer
+	config appconfig.Config
+}
+
+func NewUser(config appconfig.Config) *User {
+	return &User{
+		config: config,
+	}
 }
 
 func (s *User) Create(ctx context.Context, req *appv1.CreateUserReq) (*appv1.User, error) {
@@ -60,11 +67,10 @@ func (s *User) List(ctx context.Context, req *appv1.ListUserReq) (*appv1.ListUse
 	if err != nil {
 		return nil, err
 	}
-	records := make([]*appv1.User, 0, len(values))
-	for _, value := range values {
-		records = append(records, userToProto(value))
-	}
-	return &appv1.ListUserResp{Records: records, Paging: paging.WithTotal(total)}, nil
+	return &appv1.ListUserResp{
+		Records: convertSlice(values, userToProto),
+		Paging:  paging.WithTotal(total),
+	}, nil
 }
 
 func (s *User) Update(ctx context.Context, req *appv1.UpdateUserReq) (*appv1.User, error) {
@@ -75,20 +81,21 @@ func (s *User) Update(ctx context.Context, req *appv1.UpdateUserReq) (*appv1.Use
 	}); err != nil {
 		return nil, err
 	}
-	return s.Get(ctx, &appv1.GetUserReq{Id: req.GetId()})
+	return s.Get(ctx, &appv1.GetUserReq{
+		Id: req.GetId(),
+	})
 }
 
 func (s *User) Delete(ctx context.Context, req *appv1.DeleteUserReq) (*servercommon.Empty, error) {
 	if req.GetId() == appauth.Subject(ctx) {
-		return nil, standard.ErrFailedPrecondition.
-			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_CURRENT_USER_CANNOT_BE_DELETED)
+		return nil, standard.ErrFailedPrecondition.WithErrorCode(commonv1.ErrorCode_ERROR_CODE_CURRENT_USER_CANNOT_BE_DELETED)
 	}
 	avatar, err := model.DeleteUser(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 	if avatar.Id != "" {
-		path := filepath.Join(appconfig.StorageRoot(), avatar.StoredName)
+		path := filepath.Join(s.config.Storage.Root, avatar.StoredName)
 		if err = os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
 			logx.Ctx(ctx).Warn().Err(err).Str("file_id", avatar.Id).Msg("delete user avatar file")
 		}
@@ -102,8 +109,7 @@ func (s *User) SetRoles(ctx context.Context, req *appv1.SetUserRolesReq) (*serve
 		return nil, err
 	}
 	if !valid {
-		return nil, standard.ErrInvalidParam.
-			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_ROLE_IDS)
+		return nil, standard.ErrInvalidParam.WithErrorCode(commonv1.ErrorCode_ERROR_CODE_INVALID_ROLE_IDS)
 	}
 	return &servercommon.Empty{}, nil
 }

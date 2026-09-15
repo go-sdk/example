@@ -20,7 +20,7 @@ Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头�
 - 普通业务接口以 `proto/` 为唯一协议来源，通过 gRPC Gateway 暴露 HTTP API。
 - 标识、元数据和分页统一复用 `server.common`，应用只维护自身的业务消息和错误码。
 - 只有 multipart 上传、文件下载等不适合 Proto JSON 映射的接口使用
-  `app.RegisterRoute`，实现统一放在 `internal/route`。
+  `app.RegisterRoute`，实现统一放在 `internal/httpapi`。
 - 新增受保护的 RPC 必须声明 `(server.options.method).permissions`；匿名 RPC 必须显式声明
   `skip_auth`。
 - 密码、Token 等敏感字段必须使用 `(server.options.field).sensitive` 或为整个方法设置
@@ -41,7 +41,8 @@ Proto 驱动的用户、角色、权限 API，以及额外的文件上传和头�
 - 遵循现有包结构，优先局部修改，不引入无明确收益的抽象和依赖。
 - 注释和维护文档使用简体中文，只说明最终设计意图和关键约束。
 - 错误创建和包装优先使用 `core/errx`；日志和错误文本遵循现有英文风格。
-- 修改 Proto 后执行 `make generate`，并提交对应的 `gen/` 和 `openapi/` 生成结果。
+- 非空结构体字面量的字段各占一行；`WithErrorCode` 与基础错误保持在同一行。
+- 修改 Proto 后执行 `make generate`，并提交对应的 `pb/` 和 `openapi/` 生成结果。
 
 ## 验证边界
 

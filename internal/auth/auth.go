@@ -15,8 +15,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	"github.com/go-sdk/example/internal/model"
+	commonv1 "github.com/go-sdk/example/pb/common/v1"
 )
 
 func UnaryInterceptor() grpc.UnaryServerInterceptor {
@@ -25,12 +25,11 @@ func UnaryInterceptor() grpc.UnaryServerInterceptor {
 		if err != nil {
 			return nil, standard.ErrInternal.WithMessage("resolve method permissions")
 		}
-		if strings.HasPrefix(info.FullMethod, "/app.v1.") &&
-			(methodOption == nil || (!methodOption.GetSkipAuth() && len(methodOption.GetPermissions()) == 0)) {
+		if strings.HasPrefix(info.FullMethod, "/app.v1.") && (methodOption == nil || (!methodOption.GetSkipAuth() && len(methodOption.GetPermissions()) == 0)) {
 			return nil, standard.ErrUnauthenticated
 		}
 		for _, permission := range methodOption.GetPermissions() {
-			if err := Require(ctx, permission); err != nil {
+			if err = Require(ctx, permission); err != nil {
 				return nil, err
 			}
 		}
@@ -39,17 +38,16 @@ func UnaryInterceptor() grpc.UnaryServerInterceptor {
 }
 
 func Require(ctx context.Context, permission string) error {
-	userID := Subject(ctx)
-	if strings.TrimSpace(userID) == "" {
+	userId := Subject(ctx)
+	if strings.TrimSpace(userId) == "" {
 		return standard.ErrUnauthenticated
 	}
-	allowed, err := model.HasPermission(ctx, userID, permission)
+	allowed, err := model.HasPermission(ctx, userId, permission)
 	if err != nil {
 		return errx.Wrap(err, "check permission")
 	}
 	if !allowed {
-		return standard.ErrPermissionDenied.
-			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_PERMISSION_DENIED)
+		return standard.ErrPermissionDenied.WithErrorCode(commonv1.ErrorCode_ERROR_CODE_PERMISSION_DENIED)
 	}
 	return nil
 }

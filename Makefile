@@ -35,10 +35,10 @@ generate:				##@ Lint & Generate proto files.
 		sed -i.bak -e "s|out: \.$$|out: $$tmp_dir/generated|" -e "s|out: openapi$$|out: $$tmp_dir/generated/openapi|" "$$tmp_dir/buf.gen.yaml"; \
 		rm -f "$$tmp_dir/buf.gen.yaml.bak"; \
 		buf generate --template "$$tmp_dir/buf.gen.yaml"; \
-		test -d "$$tmp_dir/generated/gen"; \
+		test -d "$$tmp_dir/generated/pb"; \
 		test -f "$$tmp_dir/generated/openapi/openapi.swagger.yaml"; \
-		rm -rf gen openapi; \
-		mv "$$tmp_dir/generated/gen" gen; \
+		rm -rf gen pb openapi; \
+		mv "$$tmp_dir/generated/pb" pb; \
 		mv "$$tmp_dir/generated/openapi" openapi; \
 		echo "done."; \
 	else \

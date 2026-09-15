@@ -9,7 +9,7 @@ import (
 
 type File struct {
 	dbx.Metadata
-	OwnerID      string `gorm:"type:varchar(32);not null;index"`
+	OwnerId      string `gorm:"type:varchar(32);not null;index"`
 	OriginalName string `gorm:"type:varchar(255);not null"`
 	StoredName   string `gorm:"type:varchar(255);not null;uniqueIndex"`
 	MIMEType     string `gorm:"type:varchar(255);not null"`
@@ -36,8 +36,8 @@ func ReplaceAvatar(ctx context.Context, user *User, value *File, actor string) (
 		if err := tx.Create(value).Error; err != nil {
 			return err
 		}
-		if user.AvatarFileID != nil {
-			if err := tx.First(&oldFile, "id = ?", *user.AvatarFileID).Error; err != nil && !dbx.IsRecordNotFound(err) {
+		if user.AvatarFileId != nil {
+			if err := tx.First(&oldFile, "id = ?", *user.AvatarFileId).Error; err != nil && !dbx.IsRecordNotFound(err) {
 				return err
 			}
 		}

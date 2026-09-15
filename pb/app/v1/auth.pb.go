@@ -148,9 +148,9 @@ const file_app_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\x03R\texpiresAt2i\n" +
 	"\vAuthService\x12Z\n" +
-	"\x05Login\x12\x10.app.v1.LoginReq\x1a\x11.app.v1.LoginResp\",\x92A\x02b\x00\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/auth/loginʞ\xf2\x84\x06\x04\b\x01\x18\x01B|\n" +
+	"\x05Login\x12\x10.app.v1.LoginReq\x1a\x11.app.v1.LoginResp\",\x92A\x02b\x00\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/v1/auth/loginʞ\xf2\x84\x06\x04\b\x01\x18\x01B{\n" +
 	"\n" +
-	"com.app.v1B\tAuthProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
+	"com.app.v1B\tAuthProtoP\x01Z)github.com/go-sdk/example/pb/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
 var (
 	file_app_v1_auth_proto_rawDescOnce sync.Once

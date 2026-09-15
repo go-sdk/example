@@ -67,14 +67,14 @@ func FindPermissions(ctx context.Context, ids []string) ([]Permission, error) {
 	return values, err
 }
 
-func HasPermission(ctx context.Context, userID, permission string) (bool, error) {
+func HasPermission(ctx context.Context, userId, permission string) (bool, error) {
 	var count int64
 	err := app.DB().WithContext(ctx).Table("permissions AS p").
 		Joins("JOIN role_permissions AS rp ON rp.permission_id = p.id").
 		Joins("JOIN roles AS r ON r.id = rp.role_id").
 		Joins("JOIN user_roles AS ur ON ur.role_id = rp.role_id").
 		Joins("JOIN users AS u ON u.id = ur.user_id").
-		Where("u.id = ? AND u.enabled = ? AND u.deleted_at = 0 AND r.deleted_at = 0 AND p.deleted_at = 0 AND p.code = ?", userID, true, permission).
+		Where("u.id = ? AND u.enabled = ? AND u.deleted_at = 0 AND r.deleted_at = 0 AND p.deleted_at = 0 AND p.code = ?", userId, true, permission).
 		Count(&count).Error
 	return count > 0, err
 }

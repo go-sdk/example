@@ -133,9 +133,9 @@ const file_common_v1_error_proto_rawDesc = "" +
 	"\x1bERROR_CODE_RECORD_NOT_FOUND\x10Ʉ=\x1a\x18\xb2\x9e\xf2\x84\x06\x12\x12\x10record not found\x12E\n" +
 	" ERROR_CODE_RECORD_ALREADY_EXISTS\x10ʄ=\x1a\x1d\xb2\x9e\xf2\x84\x06\x17\x12\x15record already exists\x128\n" +
 	"\x18ERROR_CODE_RECORD_IN_USE\x10˄=\x1a\x18\xb2\x9e\xf2\x84\x06\x12\x12\x10record is in use\x12=\n" +
-	"\x1cERROR_CODE_INVALID_FILE_NAME\x10̄=\x1a\x19\xb2\x9e\xf2\x84\x06\x13\x12\x11invalid file nameB\x92\x01\n" +
+	"\x1cERROR_CODE_INVALID_FILE_NAME\x10̄=\x1a\x19\xb2\x9e\xf2\x84\x06\x13\x12\x11invalid file nameB\x91\x01\n" +
 	"\rcom.common.v1B\n" +
-	"ErrorProtoP\x01Z0github.com/go-sdk/example/gen/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
+	"ErrorProtoP\x01Z/github.com/go-sdk/example/pb/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
 
 var (

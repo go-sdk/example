@@ -11,9 +11,9 @@
 Proto 中的标识、元数据和分页使用 `server.common`，方法、字段和业务错误码选项直接依赖
 `buf.build/go-sdk/server`。
 
-入口只导入 PostgreSQL 驱动以及 `migration`、`route`、`service` 注册包，然后调用
-`app.Main()`。Model 通过全局 `app.DB()` 使用数据库，每个 Model 独立一个文件并封装自身
-查询和写入；Service 保留业务接口实现，不保存数据库实例。
+入口只导入 PostgreSQL 驱动以及 `migration`、`httpapi`、`service` 注册包，然后调用
+`app.Main()`。每个 Model 独立一个文件，包级数据库方法直接使用 `app.DB()`；Service 只实现
+Proto 接口，不维护额外的 Repository 抽象。
 
 ## 环境要求
 
@@ -22,7 +22,8 @@ Proto 中的标识、元数据和分页使用 `server.common`，方法、字段�
 - Docker 和 Docker Compose
 
 本地生成 Proto 还需要 `protoc-gen-go`、`protoc-gen-go-grpc`、
-`protoc-gen-grpc-gateway` 和 `protoc-gen-openapiv2`，可通过 `make prepare` 安装。
+`protoc-gen-go-json`、`protoc-gen-grpc-gateway` 和 `protoc-gen-openapiv2`，可通过
+`make prepare` 安装。
 
 ## 快速启动
 
@@ -110,15 +111,22 @@ curl -sS http://127.0.0.1:8080/api/v1/files \
 `log.*`，Snowflake 读取 `sonyflake.*`。不要把真实 DSN、数据库密码、JWT 密钥或管理员密码
 写入 `config.yaml` 或提交到 Git。
 
+应用业务配置由 `internal/config.G()` 以结构体快照统一提供，业务代码不直接读取字符串配置键。
+配置在包初始化时通过 `core/config.DecodeTo` 解码一次，`G()` 后续只返回缓存值的副本。
+
+Model 测试通过 `app/testapp.NewDB` 显式指定测试数据库驱动和 DSN；当前离线单元测试选择
+临时 SQLite。Service 测试使用 `server/standard/testserver.New` 经过真实 gRPC interceptor
+链路，额外 HTTP 接口测试使用 `testserver.NewHTTP` 经过真实 HTTP 鉴权和错误响应链。
+
 ## 开发命令
 
 ```bash
-make generate        # Buf lint，并生成 Protobuf、Gateway 和 OpenAPI
+make generate        # Buf lint，并生成 Protobuf、JSON、Gateway 和 OpenAPI
 make lint            # go mod tidy 和 golangci-lint
 make build           # 纯编译到 bin/app
 ```
 
-`make generate` 先执行 Buf lint，再生成到临时目录，只有完整成功后才替换 `gen/` 和
+`make generate` 先执行 Buf lint，再生成到临时目录，只有完整成功后才替换 `pb/` 和
 `openapi/`。生成代码和协议必须在同一提交中保持同步。
 
 ## 安全与边界

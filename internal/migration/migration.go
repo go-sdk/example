@@ -14,14 +14,46 @@ import (
 )
 
 var builtinPermissions = []model.Permission{
-	{Id: "permission_users_read", Code: "users.read", Name: "查看用户"},
-	{Id: "permission_users_write", Code: "users.write", Name: "管理用户"},
-	{Id: "permission_roles_read", Code: "roles.read", Name: "查看角色"},
-	{Id: "permission_roles_write", Code: "roles.write", Name: "管理角色"},
-	{Id: "permission_permissions_read", Code: "permissions.read", Name: "查看权限"},
-	{Id: "permission_permissions_write", Code: "permissions.write", Name: "管理权限"},
-	{Id: "permission_files_read", Code: "files.read", Name: "读取文件"},
-	{Id: "permission_files_write", Code: "files.write", Name: "上传文件"},
+	{
+		Id:   "permission_users_read",
+		Code: "users.read",
+		Name: "查看用户",
+	},
+	{
+		Id:   "permission_users_write",
+		Code: "users.write",
+		Name: "管理用户",
+	},
+	{
+		Id:   "permission_roles_read",
+		Code: "roles.read",
+		Name: "查看角色",
+	},
+	{
+		Id:   "permission_roles_write",
+		Code: "roles.write",
+		Name: "管理角色",
+	},
+	{
+		Id:   "permission_permissions_read",
+		Code: "permissions.read",
+		Name: "查看权限",
+	},
+	{
+		Id:   "permission_permissions_write",
+		Code: "permissions.write",
+		Name: "管理权限",
+	},
+	{
+		Id:   "permission_files_read",
+		Code: "files.read",
+		Name: "读取文件",
+	},
+	{
+		Id:   "permission_files_write",
+		Code: "files.write",
+		Name: "上传文件",
+	},
 }
 
 func init() {
@@ -39,7 +71,11 @@ func bootstrap(ctx context.Context, tx *dbx.DB) error {
 			permissions = append(permissions, permission)
 		}
 
-		role, err := model.EnsureRole(tx, model.Role{Id: seq.NextID(), Code: "admin", Name: "管理员"})
+		role, err := model.EnsureRole(tx, model.Role{
+			Id:   seq.NextID(),
+			Code: "admin",
+			Name: "管理员",
+		})
 		if err != nil {
 			return errx.Wrap(err, "seed administrator role")
 		}
@@ -47,16 +83,17 @@ func bootstrap(ctx context.Context, tx *dbx.DB) error {
 			return errx.Wrap(err, "assign administrator permissions")
 		}
 
-		username := appconfig.BootstrapUsername()
+		config := appconfig.G()
+		username := config.Bootstrap.Username
 		user, err := model.EnsureUser(tx, username, func() (model.User, error) {
-			hash, hashErr := bcrypt.GenerateFromPassword([]byte(appconfig.BootstrapPassword()), bcrypt.DefaultCost)
+			hash, hashErr := bcrypt.GenerateFromPassword([]byte(config.Bootstrap.Password), bcrypt.DefaultCost)
 			if hashErr != nil {
 				return model.User{}, errx.Wrap(hashErr, "hash bootstrap administrator password")
 			}
 			return model.User{
 				Id:           seq.NextID(),
 				Username:     username,
-				Email:        appconfig.BootstrapEmail(),
+				Email:        config.Bootstrap.Email,
 				PasswordHash: string(hash),
 				Enabled:      true,
 			}, nil

@@ -434,9 +434,9 @@ const file_app_v1_permission_proto_rawDesc = "" +
 	"\x03Get\x12\x18.app.v1.GetPermissionReq\x1a\x12.app.v1.Permission\"8\x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x12\x12\x10permissions.read\x12r\n" +
 	"\x04List\x12\x19.app.v1.ListPermissionReq\x1a\x1a.app.v1.ListPermissionResp\"3\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/permissionsʞ\xf2\x84\x06\x12\x12\x10permissions.read\x12w\n" +
 	"\x06Update\x12\x1b.app.v1.UpdatePermissionReq\x1a\x12.app.v1.Permission\"<\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.write\x12v\n" +
-	"\x06Delete\x12\x1b.app.v1.DeletePermissionReq\x1a\x14.server.common.Empty\"9\x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.writeB\x82\x01\n" +
+	"\x06Delete\x12\x1b.app.v1.DeletePermissionReq\x1a\x14.server.common.Empty\"9\x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/permissions/{id}ʞ\xf2\x84\x06\x13\x12\x11permissions.writeB\x81\x01\n" +
 	"\n" +
-	"com.app.v1B\x0fPermissionProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
+	"com.app.v1B\x0fPermissionProtoP\x01Z)github.com/go-sdk/example/pb/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
 var (
 	file_app_v1_permission_proto_rawDescOnce sync.Once

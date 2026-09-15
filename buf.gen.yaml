@@ -4,7 +4,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/go-sdk/example/gen
+      value: github.com/go-sdk/example/pb
     - file_option: go_package
       value: github.com/go-sdk/server/options
       module: buf.build/go-sdk/server
@@ -22,6 +22,9 @@ plugins:
     out: .
     opt: module=github.com/go-sdk/example
   - local: protoc-gen-go-grpc
+    out: .
+    opt: module=github.com/go-sdk/example
+  - local: protoc-gen-go-json
     out: .
     opt: module=github.com/go-sdk/example
   - local: protoc-gen-grpc-gateway

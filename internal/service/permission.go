@@ -8,14 +8,18 @@ import (
 	servercommon "github.com/go-sdk/server/common"
 	"github.com/go-sdk/server/standard"
 
-	appv1 "github.com/go-sdk/example/gen/app/v1"
-	commonv1 "github.com/go-sdk/example/gen/common/v1"
 	appauth "github.com/go-sdk/example/internal/auth"
 	"github.com/go-sdk/example/internal/model"
+	appv1 "github.com/go-sdk/example/pb/app/v1"
+	commonv1 "github.com/go-sdk/example/pb/common/v1"
 )
 
 type Permission struct {
 	appv1.UnimplementedPermissionServiceServer
+}
+
+func NewPermission() *Permission {
+	return &Permission{}
 }
 
 func (s *Permission) Create(ctx context.Context, req *appv1.CreatePermissionReq) (*appv1.Permission, error) {
@@ -48,11 +52,10 @@ func (s *Permission) List(ctx context.Context, req *appv1.ListPermissionReq) (*a
 	if err != nil {
 		return nil, err
 	}
-	records := make([]*appv1.Permission, 0, len(values))
-	for _, value := range values {
-		records = append(records, permissionToProto(value))
-	}
-	return &appv1.ListPermissionResp{Records: records, Paging: paging.WithTotal(total)}, nil
+	return &appv1.ListPermissionResp{
+		Records: convertSlice(values, permissionToProto),
+		Paging:  paging.WithTotal(total),
+	}, nil
 }
 
 func (s *Permission) Update(ctx context.Context, req *appv1.UpdatePermissionReq) (*appv1.Permission, error) {
@@ -62,7 +65,9 @@ func (s *Permission) Update(ctx context.Context, req *appv1.UpdatePermissionReq)
 	}); err != nil {
 		return nil, err
 	}
-	return s.Get(ctx, &appv1.GetPermissionReq{Id: req.GetId()})
+	return s.Get(ctx, &appv1.GetPermissionReq{
+		Id: req.GetId(),
+	})
 }
 
 func (s *Permission) Delete(ctx context.Context, req *appv1.DeletePermissionReq) (*servercommon.Empty, error) {
@@ -71,8 +76,7 @@ func (s *Permission) Delete(ctx context.Context, req *appv1.DeletePermissionReq)
 		return nil, err
 	}
 	if strings.HasPrefix(value.Id, "permission_") {
-		return nil, standard.ErrFailedPrecondition.
-			WithErrorCode(commonv1.ErrorCode_ERROR_CODE_BUILTIN_PERMISSION_CANNOT_BE_DELETED)
+		return nil, standard.ErrFailedPrecondition.WithErrorCode(commonv1.ErrorCode_ERROR_CODE_BUILTIN_PERMISSION_CANNOT_BE_DELETED)
 	}
 	if err = model.DeletePermission(ctx, &value); err != nil {
 		return nil, err

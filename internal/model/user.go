@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-sdk/app"
 	"github.com/go-sdk/database/dbx"
+	"github.com/samber/lo"
 )
 
 type User struct {
@@ -13,7 +14,7 @@ type User struct {
 	Email        string  `gorm:"type:varchar(255);not null;uniqueIndex"`
 	PasswordHash string  `gorm:"type:varchar(255);not null"`
 	Enabled      bool    `gorm:"not null"`
-	AvatarFileID *string `gorm:"type:varchar(32);index"`
+	AvatarFileId *string `gorm:"type:varchar(32);index"`
 	Roles        []Role  `gorm:"many2many:user_roles"`
 }
 
@@ -64,8 +65,8 @@ func DeleteUser(ctx context.Context, id string) (File, error) {
 		if err := tx.First(&user, "id = ?", id).Error; err != nil {
 			return err
 		}
-		if user.AvatarFileID != nil {
-			if err := tx.First(&avatar, "id = ?", *user.AvatarFileID).Error; err != nil && !dbx.IsRecordNotFound(err) {
+		if user.AvatarFileId != nil {
+			if err := tx.First(&avatar, "id = ?", *user.AvatarFileId).Error; err != nil && !dbx.IsRecordNotFound(err) {
 				return err
 			}
 		}
@@ -80,12 +81,12 @@ func DeleteUser(ctx context.Context, id string) (File, error) {
 	return avatar, err
 }
 
-func SetUserRoles(ctx context.Context, id string, roleIDs []string) (bool, error) {
+func SetUserRoles(ctx context.Context, id string, roleIds []string) (bool, error) {
 	user, err := GetUser(ctx, id)
 	if err != nil {
 		return false, err
 	}
-	ids := uniqueIDs(roleIDs)
+	ids := lo.Uniq(roleIds)
 	roles, err := FindRoles(ctx, ids)
 	if err != nil {
 		return false, err

@@ -505,9 +505,9 @@ const file_app_v1_role_proto_rawDesc = "" +
 	"roles.read\x12_\n" +
 	"\x06Update\x12\x15.app.v1.UpdateRoleReq\x1a\f.app.v1.Role\"0\x82\xd3\xe4\x93\x02\x17:\x01*\x1a\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12d\n" +
 	"\x06Delete\x12\x15.app.v1.DeleteRoleReq\x1a\x14.server.common.Empty\"-\x82\xd3\xe4\x93\x02\x14*\x12/api/v1/roles/{id}ʞ\xf2\x84\x06\r\x12\vroles.write\x12\x83\x01\n" +
-	"\x0eSetPermissions\x12\x1d.app.v1.SetRolePermissionsReq\x1a\x14.server.common.Empty\"<\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/roles/{id}/permissionsʞ\xf2\x84\x06\r\x12\vroles.writeB|\n" +
+	"\x0eSetPermissions\x12\x1d.app.v1.SetRolePermissionsReq\x1a\x14.server.common.Empty\"<\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/roles/{id}/permissionsʞ\xf2\x84\x06\r\x12\vroles.writeB{\n" +
 	"\n" +
-	"com.app.v1B\tRoleProtoP\x01Z*github.com/go-sdk/example/gen/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
+	"com.app.v1B\tRoleProtoP\x01Z)github.com/go-sdk/example/pb/app/v1;appv1\xa2\x02\x03AXX\xaa\x02\x06App.V1\xca\x02\x06App\\V1\xe2\x02\x12App\\V1\\GPBMetadata\xea\x02\aApp::V1b\x06proto3"
 
 var (
 	file_app_v1_role_proto_rawDescOnce sync.Once
