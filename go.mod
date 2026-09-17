@@ -5,11 +5,11 @@ go 1.27.0
 replace github.com/go-sdk/example/pb => ./pb
 
 require (
-	github.com/go-sdk/app v1.0.3
+	github.com/go-sdk/app v1.0.4
 	github.com/go-sdk/core v1.4.6
-	github.com/go-sdk/database v1.0.6
+	github.com/go-sdk/database v1.0.7
 	github.com/go-sdk/example/pb v1.0.0
-	github.com/go-sdk/server v1.3.4
+	github.com/go-sdk/server v1.3.5
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/samber/lo v1.53.0
 	github.com/spf13/cast v1.10.0
@@ -30,7 +30,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/glebarez/go-sqlite v1.23.0 // indirect
 	github.com/glebarez/sqlite v1.11.0 // indirect
-	github.com/go-gormigrate/gormigrate/v2 v2.1.6 // indirect
+	github.com/go-gormigrate/gormigrate/v2 v2.1.7 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.4 // indirect
@@ -67,8 +67,8 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gorm.io/driver/postgres v1.6.3 // indirect
 	gorm.io/gorm v1.31.2 // indirect
-	modernc.org/libc v1.75.7 // indirect
+	modernc.org/libc v1.76.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	modernc.org/sqlite v1.58.0 // indirect
+	modernc.org/sqlite v1.59.0 // indirect
 )
