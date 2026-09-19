@@ -10,7 +10,7 @@ import (
 // MarshalJSON implements json.Marshaler.
 func (msg *Role) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -19,14 +19,14 @@ func (msg *Role) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *Role) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *CreateRoleReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -35,14 +35,14 @@ func (msg *CreateRoleReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *CreateRoleReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *GetRoleReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -51,14 +51,14 @@ func (msg *GetRoleReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *GetRoleReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *ListRoleReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -67,14 +67,14 @@ func (msg *ListRoleReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *ListRoleReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *ListRoleResp) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -83,14 +83,14 @@ func (msg *ListRoleResp) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *ListRoleResp) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *UpdateRoleReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -99,14 +99,14 @@ func (msg *UpdateRoleReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *UpdateRoleReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *DeleteRoleReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -115,14 +115,14 @@ func (msg *DeleteRoleReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *DeleteRoleReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *SetRolePermissionsReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -131,6 +131,6 @@ func (msg *SetRolePermissionsReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *SetRolePermissionsReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }

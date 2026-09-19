@@ -11,7 +11,7 @@ import (
 
 // MarshalJSON implements json.Marshaler for enum ErrorCode.
 func (x ErrorCode) MarshalJSON() ([]byte, error) {
-	return json.Marshal(x.String())
+	return []byte(strconv.FormatInt(int64(x), 10)), nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler for enum ErrorCode.

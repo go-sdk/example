@@ -10,7 +10,7 @@ import (
 // MarshalJSON implements json.Marshaler.
 func (msg *LoginReq) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -19,14 +19,14 @@ func (msg *LoginReq) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *LoginReq) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }
 
 // MarshalJSON implements json.Marshaler.
 func (msg *LoginResp) MarshalJSON() ([]byte, error) {
 	return protojson.MarshalOptions{
-		UseEnumNumbers:  false,
+		UseEnumNumbers:  true,
 		EmitUnpopulated: false,
 		UseProtoNames:   false,
 	}.Marshal(msg)
@@ -35,6 +35,6 @@ func (msg *LoginResp) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON implements json.Unmarshaler.
 func (msg *LoginResp) UnmarshalJSON(b []byte) error {
 	return protojson.UnmarshalOptions{
-		DiscardUnknown: false,
+		DiscardUnknown: true,
 	}.Unmarshal(b, msg)
 }

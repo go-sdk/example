@@ -26,7 +26,10 @@ plugins:
     opt: module=github.com/go-sdk/example
   - local: protoc-gen-go-json
     out: .
-    opt: module=github.com/go-sdk/example
+    opt:
+      - module=github.com/go-sdk/example
+      - enums_as_ints=true
+      - allow_unknown=true
   - local: protoc-gen-grpc-gateway
     out: .
     opt: module=github.com/go-sdk/example
