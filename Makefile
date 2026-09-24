@@ -28,8 +28,9 @@ prepare:				##@ Install buf local plugins.
 
 .PHONY: generate
 generate:				##@ Lint & Generate proto files.
-	@if command -v buf >/dev/null 2>&1; then \
-		buf lint && \
+	@set -eu; \
+	if command -v buf >/dev/null 2>&1; then \
+		buf lint; \
 		tmp_dir=$$(mktemp -d); \
 		trap 'rm -rf "$$tmp_dir"' EXIT; \
 		cp buf.gen.yaml "$$tmp_dir/buf.gen.yaml"; \
